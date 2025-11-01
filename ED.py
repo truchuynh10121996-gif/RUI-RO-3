@@ -63,12 +63,12 @@ body {
 }
 
 /* ------------------------------------------------------------------------------------------------
-| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (Bao gồm cả Tiêu đề và Subtitle)
+| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (Bao gồm cả Tabs, Tiêu đề và Subtitle)
 | Đã đảm bảo container này sẽ chiếm toàn bộ chiều rộng (nhờ layout="wide" và không có max-width)
 ------------------------------------------------------------------------------------------------ */
 .banner-title-container {
     background: linear-gradient(90deg, #e0f0ff, #f7f9fc, #e0f0ff); /* Màu chuyển sắc nhẹ nhàng */
-    padding: 20px 30px; /* Tăng padding để làm dải banner dày hơn */
+    padding: 10px 30px 20px 30px; /* Giảm padding trên, tăng padding dưới một chút */
     border-radius: 10px; /* Bo góc nhẹ */
     box-shadow: 0 4px 12px rgba(0, 76, 153, 0.1); /* Shadow nhẹ nhàng, chuyên nghiệp */
     margin-bottom: 20px; /* Khoảng cách với nội dung bên dưới */
@@ -152,14 +152,33 @@ button[kind="primary"]:hover {
 button[kind="primary"]:active {
     transform: scale(0.98);
 }
-/* Style cho Tabs */
+/* Style cho Tabs - ĐÃ CHỈNH SỬA VỊ TRÍ NẰM TRONG BANNER */
+.stTabs {
+    /* Quan trọng: Đảm bảo tabs luôn nằm trên cùng */
+    margin-bottom: 0px !important;
+}
 .stTabs [data-testid="stVerticalBlock"] {
     padding: 0;
 }
 .stTabs [data-testid="stHorizontalBlock"] {
-    background-color: #f0f8ff; /* Nền nhẹ cho thanh tab */
-    border-radius: 8px;
-    padding: 5px 0;
+    /* Loại bỏ background để hòa vào dải banner */
+    background-color: transparent !important;
+    border-radius: 0;
+    padding: 0 0 5px 0; /* Giữ khoảng cách nhẹ dưới tab */
+    border-bottom: 2px solid rgba(0, 76, 153, 0.2); /* Đường phân cách nhẹ */
+}
+/* Style cho từng nút tab */
+.stTabs button {
+    font-weight: 700 !important;
+    border-radius: 8px 8px 0 0 !important;
+    color: #004c99 !important; /* Màu xanh đậm cho chữ tab */
+    border: none !important;
+    transition: all 0.2s ease;
+}
+.stTabs button[aria-selected="true"] {
+    background-color: #004c99 !important; /* Tab đang chọn nổi bật */
+    color: white !important;
+    box-shadow: 0 2px 5px rgba(0, 76, 153, 0.3);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -285,35 +304,35 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
 
     # ---- Tính toán các biến số tài chính (GIỮ NGUYÊN CÁCH TÍNH)
-    DTT_prev, DTT_cur      = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
+    DTT_prev, DTT_cur       = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
-    LNG_prev, LNG_cur      = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
+    LNG_prev, LNG_cur       = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
-    LV_prev, LV_cur        = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-    TTS_prev, TTS_cur        = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
-    VCSH_prev, VCSH_cur      = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
-    NPT_prev, NPT_cur        = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
-    TSNH_prev, TSNH_cur      = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
-    NNH_prev, NNH_cur        = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
-    HTK_prev, HTK_cur        = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
-    Tien_prev, Tien_cur      = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
-    KPT_prev, KPT_cur        = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
-    NDH_prev, NDH_cur        = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
+    LV_prev, LV_cur         = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
+    TTS_prev, TTS_cur         = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
+    VCSH_prev, VCSH_cur       = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
+    NPT_prev, NPT_cur         = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
+    TSNH_prev, TSNH_cur       = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
+    NNH_prev, NNH_cur         = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
+    HTK_prev, HTK_cur         = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
+    Tien_prev, Tien_cur       = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
+    KPT_prev, KPT_cur         = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
+    NDH_prev, NDH_cur         = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
-    if pd.notna(LV_cur):     LV_cur     = abs(LV_cur)
-    if pd.notna(KH_cur):     KH_cur     = abs(KH_cur)
+    if pd.notna(LV_cur):       LV_cur      = abs(LV_cur)
+    if pd.notna(KH_cur):       KH_cur      = abs(KH_cur)
 
     def avg(a, b):
         if pd.isna(a) and pd.isna(b): return np.nan
         if pd.isna(a): return b
         if pd.isna(b): return a
         return (a + b) / 2.0
-    TTS_avg    = avg(TTS_cur,   TTS_prev)
+    TTS_avg    = avg(TTS_cur,    TTS_prev)
     VCSH_avg = avg(VCSH_cur, VCSH_prev)
-    HTK_avg    = avg(HTK_cur,   HTK_prev)
-    KPT_avg    = avg(KPT_cur,   KPT_prev)
+    HTK_avg    = avg(HTK_cur,    HTK_prev)
+    KPT_avg    = avg(KPT_cur,    KPT_prev)
 
     EBIT_cur = (LNTT_cur + LV_cur) if (pd.notna(LNTT_cur) and pd.notna(LV_cur)) else np.nan
     NDH_cur = 0.0 if pd.isna(NDH_cur) else NDH_cur
@@ -352,22 +371,21 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 np.random.seed(0)
 
 # ------------------------------------------------------------------------------------------------
-# THAY ĐỔI VỊ TRÍ 1: CHUYỂN SANG DÙNG st.tabs NGANG (ĐẶT TRÊN TIÊU ĐỀ)
+# THAY ĐỔI VỊ TRÍ 1: CHUYỂN CÁC TABS LÊN TRÊN TIÊU ĐỀ, ĐẶT TRONG st.markdown BANNER
 # ------------------------------------------------------------------------------------------------
+st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
 
-# Định nghĩa các Tabs
+# Định nghĩa các Tabs (phải được định nghĩa ở đây để hiển thị trước tiêu đề)
 tab_predict, tab_build, tab_goal = st.tabs([
     "🚀 Sử dụng mô hình để dự báo", 
     "🛠️ Xây dựng mô hình", 
     "🎯 Mục tiêu của mô hình"
 ])
 
-# ------------------------------------------------------------------------------------------------
-# THAY ĐỔI VỊ TRÍ 2: Áp dụng dải banner CSS đã tạo (banner rộng hơn) - ĐẶT SAU TABS
-# ------------------------------------------------------------------------------------------------
-st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
+# Tiêu đề và Subtitle nằm dưới Tabs
 st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
 st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâng cao")
+
 st.markdown('</div>', unsafe_allow_html=True)
 # ------------------------------------------------------------------------------------------------
 
@@ -465,7 +483,7 @@ with tab_goal:
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        #  # Thay thế 3 hình ảnh
+        # # Thay thế 3 hình ảnh
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 # Dùng placeholder image nếu không tìm thấy file
