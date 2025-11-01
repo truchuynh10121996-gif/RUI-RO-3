@@ -360,9 +360,10 @@ st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâ
 st.markdown('</div>', unsafe_allow_html=True)
 # ------------------------------------------------------------------------------------------------
 
+# --- THAY ĐỔI VỊ TRÍ (YÊU CẦU CHUYÊN GIA): Đặt tabs NGAY DƯỚI BANNER/TIÊU ĐỀ CHÍNH ---
+# Điều này đảm bảo các tab là yếu tố điều hướng đầu tiên sau tiêu đề/banner.
 # ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 2: DI CHUYỂN TABS VỀ VỊ TRÍ MỚI (Ngay dưới banner)
-# ------------------------------------------------------------------------------------------------
+# CHUYỂN SANG DÙNG st.tabs NGANG
 # Định nghĩa các Tabs
 tab_predict, tab_build, tab_goal = st.tabs([
     "🚀 Sử dụng mô hình để dự báo", 
@@ -394,6 +395,7 @@ uploaded_file = st.sidebar.file_uploader("📂 Tải CSV Dữ liệu Huấn luy�
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
+
 
 # --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
@@ -465,7 +467,7 @@ with tab_goal:
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        # # Thay thế 3 hình ảnh
+        #  # Thay thế 3 hình ảnh
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 # Dùng placeholder image nếu không tìm thấy file
