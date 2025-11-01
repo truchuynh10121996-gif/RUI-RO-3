@@ -1,4 +1,4 @@
-# app_upgraded.py — Streamlit PD + Phân tích Gemini (Giao diện nâng cấp)
+# app_upgraded_i18n.py — Streamlit PD + Phân tích Gemini (Giao diện Tên Tiếng Việt)
 
 # =========================
 # THƯ VIỆN BẮT BUỘC VÀ BỔ SUNG
@@ -40,7 +40,7 @@ except Exception:
     _OPENAI_OK = False
 
 
-MODEL_NAME = "gemini-2.5-flash" # Model mạnh mẽ và hiệu quả cho phân tích văn bản
+MODEL_NAME = "gemini-2.5-flash"
 
 # =========================
 # CẤU HÌNH TRANG (NÂNG CẤP GIAO DIỆN)
@@ -48,11 +48,11 @@ MODEL_NAME = "gemini-2.5-flash" # Model mạnh mẽ và hiệu quả cho phân t
 st.set_page_config(
     page_title="Credit Risk PD & Gemini Analysis",
     page_icon="🏛️",
-    layout="wide", # Sử dụng bố cục rộng rãi hơn
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh nhẹ (Tuỳ chọn: có thể đặt file .streamlit/style.css)
+# Thêm CSS tùy chỉnh nhẹ
 st.markdown("""
 <style>
 /* Tăng độ đậm tiêu đề chính */
@@ -72,7 +72,7 @@ div[data-testid="metric-container"] {
 
 
 # =========================
-# HÀM GỌI GEMINI API (GIỮ NGUYÊN)
+# HÀM GỌI GEMINI API (GIỮ NGUYÊN LOGIC)
 # =========================
 
 def get_ai_analysis(data_payload: dict, api_key: str) -> str:
@@ -86,13 +86,14 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
 
     sys_prompt = (
         "Bạn là chuyên gia phân tích tín dụng doanh nghiệp tại ngân hàng. "
-        "Phân tích toàn diện dựa trên 14 chỉ số tài chính (X1..X14) và PD nếu có. "
+        "Phân tích toàn diện dựa trên 14 chỉ số tài chính được cung cấp và PD nếu có. "
         "Nêu rõ: (1) Khả năng sinh lời, (2) Thanh khoản, (3) Cơ cấu nợ, (4) Hiệu quả hoạt động. "
         "Kết thúc bằng khuyến nghị in hoa: CHO VAY hoặc KHÔNG CHO VAY, kèm 2–3 điều kiện nếu CHO VAY. "
         "Viết bằng tiếng Việt súc tích, chuyên nghiệp."
     )
     
-    user_prompt = "Bộ chỉ số X1..X14 và PD cần phân tích:\n" + str(data_payload) + "\n\nHãy phân tích và đưa ra khuyến nghị."
+    # Gửi tên tiếng Việt dễ hiểu hơn cho AI
+    user_prompt = "Bộ chỉ số tài chính và PD cần phân tích:\n" + str(data_payload) + "\n\nHãy phân tích và đưa ra khuyến nghị."
 
     try:
         response = client.models.generate_content(
@@ -110,8 +111,17 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
 
 
 # =========================
-# TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) - GIỮ NGUYÊN LOGIC
+# TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) - SỬ DỤNG TÊN TIẾNG VIỆT
 # =========================
+
+# Bảng ánh xạ Tên chỉ số tiếng Việt
+COMPUTED_COLS = [
+    "Biên Lợi nhuận Gộp (X1)", "Biên Lợi nhuận Tr.Thuế (X2)", "ROA Tr.Thuế (X3)", 
+    "ROE Tr.Thuế (X4)", "Tỷ lệ Nợ/TTS (X5)", "Tỷ lệ Nợ/VCSH (X6)", 
+    "Thanh toán Hiện hành (X7)", "Thanh toán Nhanh (X8)", "Khả năng Trả lãi (X9)", 
+    "Khả năng Trả nợ Gốc (X10)", "Tỷ lệ Tiền/VCSH (X11)", "Vòng quay HTK (X12)", 
+    "Kỳ thu tiền BQ (X13)", "Hiệu suất Tài sản (X14)"
+]
 
 # Alias các dòng quan trọng trong từng sheet (GIỮ NGUYÊN)
 ALIAS_IS = {
@@ -154,7 +164,7 @@ def _pick_year_cols(df: pd.DataFrame):
     return cols[0], cols[1]
 
 def _get_row_vals(df: pd.DataFrame, aliases: list[str]):
-    """Tìm dòng theo alias (contains, không phân biệt hoa/thường). Trả về (prev, cur) theo 2 cột năm gần nhất."""
+    """Tìm dòng theo alias. Trả về (prev, cur) theo 2 cột năm gần nhất."""
     label_col = df.columns[0]
     prev_col, cur_col = _pick_year_cols(df)
     mask = False
@@ -174,20 +184,17 @@ def _get_row_vals(df: pd.DataFrame, aliases: list[str]):
     return to_num(row[prev_col]), to_num(row[cur_col])
 
 def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
-    """Đọc 3 sheet CDKT/BCTN/LCTT và tính X1..X14 theo yêu cầu. (GIỮ NGUYÊN)"""
-    # Đọc 3 sheet; cần openpyxl trong requirements
+    """Đọc 3 sheet CDKT/BCTN/LCTT và tính X1..X14 theo yêu cầu."""
     bs = pd.read_excel(xlsx_file, sheet_name="CDKT", engine="openpyxl")
     is_ = pd.read_excel(xlsx_file, sheet_name="BCTN", engine="openpyxl")
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
 
-    # ---- KQKD (BCTN)
+    # ---- Tính toán các biến số tài chính (GIỮ NGUYÊN CÁCH TÍNH)
     DTT_prev, DTT_cur    = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
     LNG_prev, LNG_cur    = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
     LV_prev, LV_cur      = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-
-    # ---- CĐKT (CDKT)
     TTS_prev, TTS_cur      = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
     VCSH_prev, VCSH_cur    = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
     NPT_prev, NPT_cur      = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
@@ -197,16 +204,12 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     Tien_prev, Tien_cur    = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
     KPT_prev, KPT_cur      = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
     NDH_prev, NDH_cur      = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
-
-    # ---- LCTT (LCTT) – lấy Khấu hao nếu có
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
-    # Chuẩn hoá số âm thường thấy ở GVHB, chi phí lãi vay, khấu hao
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
     if pd.notna(LV_cur):   LV_cur    = abs(LV_cur)
     if pd.notna(KH_cur):   KH_cur    = abs(KH_cur)
 
-    # Trung bình đầu/cuối kỳ
     def avg(a, b):
         if pd.isna(a) and pd.isna(b): return np.nan
         if pd.isna(a): return b
@@ -217,34 +220,35 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     HTK_avg  = avg(HTK_cur,  HTK_prev)
     KPT_avg  = avg(KPT_cur,  KPT_prev)
 
-    # EBIT ~ LNTT + chi phí lãi vay (nếu thiếu EBIT riêng)
     EBIT_cur = (LNTT_cur + LV_cur) if (pd.notna(LNTT_cur) and pd.notna(LV_cur)) else np.nan
-    # Nợ dài hạn đến hạn trả: có file không ghi -> set 0
     NDH_cur = 0.0 if pd.isna(NDH_cur) else NDH_cur
 
     def div(a, b):
         return np.nan if (b is None or pd.isna(b) or b == 0) else a / b
 
-    # ==== TÍNH X1..X14 ====
-    X1  = div(LNG_cur, DTT_cur)                      # Biên LN gộp
-    X2  = div(LNTT_cur, DTT_cur)                     # Biên LNTT
-    X3  = div(LNTT_cur, TTS_avg)                     # ROA (trước thuế)
-    X4  = div(LNTT_cur, VCSH_avg)                    # ROE (trước thuế)
-    X5  = div(NPT_cur,  TTS_cur)                     # Nợ/Tài sản
-    X6  = div(NPT_cur,  VCSH_cur)                    # Nợ/VCSH
-    X7  = div(TSNH_cur, NNH_cur)                     # Thanh toán hiện hành
-    X8  = div((TSNH_cur - HTK_cur) if pd.notna(TSNH_cur) and pd.notna(HTK_cur) else np.nan, NNH_cur)  # Nhanh
-    X9  = div(EBIT_cur, LV_cur)                      # Khả năng trả lãi
-    X10 = div((EBIT_cur + (KH_cur if pd.notna(KH_cur) else 0.0)),
-              (LV_cur + NDH_cur) if pd.notna(LV_cur) else np.nan)  # Khả năng trả nợ gốc
-    X11 = div(Tien_cur, VCSH_cur)                    # Tiền/VCSH
-    X12 = div(GVHB_cur, HTK_avg)                     # Vòng quay HTK
-    turnover = div(DTT_cur, KPT_avg)               # Vòng quay phải thu
-    X13 = div(365.0, turnover) if pd.notna(turnover) and turnover != 0 else np.nan  # Kỳ thu tiền BQ
-    X14 = div(DTT_cur, TTS_avg)                      # Hiệu suất sử dụng tài sản
+    # ==== TÍNH X1..X14 ==== (GIỮ NGUYÊN CÔNG THỨC)
+    X1  = div(LNG_cur, DTT_cur)
+    X2  = div(LNTT_cur, DTT_cur)
+    X3  = div(LNTT_cur, TTS_avg)
+    X4  = div(LNTT_cur, VCSH_avg)
+    X5  = div(NPT_cur,  TTS_cur)
+    X6  = div(NPT_cur,  VCSH_cur)
+    X7  = div(TSNH_cur, NNH_cur)
+    X8  = div((TSNH_cur - HTK_cur) if pd.notna(TSNH_cur) and pd.notna(HTK_cur) else np.nan, NNH_cur)
+    X9  = div(EBIT_cur, LV_cur)
+    X10 = div((EBIT_cur + (KH_cur if pd.notna(KH_cur) else 0.0)), (LV_cur + NDH_cur) if pd.notna(LV_cur) else np.nan)
+    X11 = div(Tien_cur, VCSH_cur)
+    X12 = div(GVHB_cur, HTK_avg)
+    turnover = div(DTT_cur, KPT_avg)
+    X13 = div(365.0, turnover) if pd.notna(turnover) and turnover != 0 else np.nan
+    X14 = div(DTT_cur, TTS_avg)
 
+    # Khởi tạo DataFrame với tên cột tiếng Việt mới
     ratios = pd.DataFrame([[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14]],
-                         columns=[f"X_{i}" for i in range(1, 15)])
+                         columns=COMPUTED_COLS)
+                         
+    # Thêm cột X_1..X_14 ẩn để phục vụ việc dự báo mô hình
+    ratios[[f"X_{i}" for i in range(1, 15)]] = ratios.values
     return ratios
 
 # =========================
@@ -278,23 +282,43 @@ st.divider()
 # Load dữ liệu huấn luyện (CSV có default, X_1..X_14) - Giữ nguyên logic load data
 try:
     df = pd.read_csv('DATASET.csv', encoding='latin-1')
+    # Tên cột cho việc huấn luyện (phải giữ nguyên X_1..X_14)
+    MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
 except Exception:
     df = None
 
 uploaded_file = st.sidebar.file_uploader("📂 Tải CSV Dữ liệu Huấn luyện", type=['csv'])
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
+    MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
 
+# --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
     st.sidebar.info("💡 Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14) để xây dựng mô hình.")
     
-    # Hiển thị dashboard mặc định cho người mới bắt đầu
-    st.markdown("## 🎯 Mục tiêu Ứng dụng")
-    st.info("**Ứng dụng này giúp bạn: (1) Huấn luyện mô hình Logistic Regression dự báo Xác suất Vỡ nợ (PD) từ bộ 14 chỉ số tài chính (X1-X14). (2) Phân tích chuyên sâu các chỉ số tài chính bằng mô hình ngôn ngữ lớn Gemini AI.**")
+    # Sử dụng logic mặc định để hiển thị trang dự báo ngay cả khi thiếu data, nhưng cảnh báo.
+    menu = ["Mục tiêu của mô hình", "Xây dựng mô hình", "Sử dụng mô hình để dự báo"]
+    choice = st.sidebar.selectbox('🚀 Danh mục Tính năng', menu, index=2) # <--- ĐIỀU CHỈNH CHÍNH
+    
+    if choice == 'Sử dụng mô hình để dự báo':
+        st.header("⚡ Dự báo PD & Phân tích AI cho Hồ sơ mới")
+        st.warning("⚠️ **Không thể dự báo PD**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để xây dựng mô hình Logistic Regression.")
+        up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx**", type=["xlsx"], key="ho_so_dn")
+        if up_xlsx is None:
+            st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14 và phân tích AI.")
+    # Các phần logic còn lại không đổi
+    elif choice == 'Mục tiêu của mô hình':
+        st.header("🎯 Mục tiêu của Mô hình")
+        st.info("Ứng dụng này cần dữ liệu huấn luyện để bắt đầu hoạt động.")
+    elif choice == 'Xây dựng mô hình':
+         st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
+         st.error("❌ **Không thể xây dựng mô hình**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để bắt đầu.")
+        
     st.stop()
 
+
 # Kiểm tra cột cần thiết
-required_cols = ['default'] + [f"X_{i}" for i in range(1, 15)]
+required_cols = ['default'] + MODEL_COLS
 missing = [c for c in required_cols if c not in df.columns]
 if missing:
     st.error(f"❌ Thiếu cột: **{missing}**. Vui lòng kiểm tra lại file CSV huấn luyện.")
@@ -302,7 +326,7 @@ if missing:
 
 
 # Train model (GIỮ NGUYÊN)
-X = df.drop(columns=['default'])
+X = df[MODEL_COLS] # Chỉ lấy các cột X_1..X_14
 y = df['default'].astype(int)
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -332,20 +356,20 @@ metrics_out = {
     "auc_out": roc_auc_score(y_test, y_proba_out),
 }
 
-# Sử dụng Sidebar để chọn tính năng (Giữ nguyên)
+# Sử dụng Sidebar để chọn tính năng
 menu = ["Mục tiêu của mô hình", "Xây dựng mô hình", "Sử dụng mô hình để dự báo"]
-choice = st.sidebar.selectbox('🚀 Danh mục Tính năng', menu)
+# ***** ĐIỀU CHỈNH CHỦ YẾU: ĐẶT index=2 LÀM MẶC ĐỊNH *****
+choice = st.sidebar.selectbox('🚀 Danh mục Tính năng', menu, index=2)
 
-# --- Các phần UI được tổ chức lại đẹp hơn ---
+
+# --- CÁC PHẦN UI ĐƯỢC TỔ CHỨC LẠI ĐẸP HƠN (GIỮ NGUYÊN) ---
 
 if choice == 'Mục tiêu của mô hình':    
     st.header("🎯 Mục tiêu của Mô hình")
-    st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số X1–X14 (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
+    st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số $\text{X1}–\text{X14}$ (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
     
-    # Hiển thị hình ảnh minh họa trong expander (tránh làm rối màn hình chính)
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        # ảnh minh họa (có thể không tồn tại) - GIỮ NGUYÊN CÁCH LOAD
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 st.image(img)
@@ -361,7 +385,7 @@ elif choice == 'Xây dựng mô hình':
     col_acc, col_auc, col_f1 = st.columns(3)
     
     col_acc.metric(label="Độ chính xác (Accuracy)", value=f"{metrics_out['accuracy_out']:.2%}")
-    col_auc.metric(label="Diện tích dưới đường cong (AUC)", value=f"{metrics_out['auc_out']:.3f}", delta=f"{metrics_out['auc_in'] - metrics_out['auc_out']:.3f}", delta_color="inverse")
+    col_auc.metric(label="Diện tích dưới đường cong (AUC)", value=f"{metrics_out['auc_out']:.3f}", delta=f"{metrics_in['auc_in'] - metrics_out['auc_out']:.3f}", delta_color="inverse")
     col_f1.metric(label="Điểm F1-Score", value=f"{metrics_out['f1_out']:.3f}")
     
     st.divider()
@@ -370,13 +394,13 @@ elif choice == 'Xây dựng mô hình':
     st.subheader("2. Dữ liệu và Trực quan hóa")
     
     with st.expander("📊 Thống kê Mô tả và Dữ liệu Mẫu"):
-        st.markdown("##### Thống kê Mô tả các biến X1..X14")
-        st.dataframe(df[[f"X_{i}" for i in range(1, 15)]].describe().style.format("{:.4f}"))
+        st.markdown("##### Thống kê Mô tả các biến $X_1..X_{14}$")
+        st.dataframe(df[MODEL_COLS].describe().style.format("{:.4f}"))
         st.markdown("##### 6 Dòng dữ liệu huấn luyện mẫu (Đầu/Cuối)")
         st.dataframe(pd.concat([df.head(3), df.tail(3)]))
 
     st.markdown("##### Biểu đồ Phân tán (Scatter Plot) với Đường Hồi quy Logisitc")
-    col = st.selectbox('🔍 Chọn biến X muốn vẽ', options=[f"X_{i}" for i in range(1, 15)], index=0)
+    col = st.selectbox('🔍 Chọn biến X muốn vẽ', options=MODEL_COLS, index=0)
 
     # Biểu đồ Scatter Plot và Đường Hồi quy Logisitc (GIỮ NGUYÊN LOGIC)
     if col in df.columns:
@@ -399,7 +423,7 @@ elif choice == 'Xây dựng mô hình':
             ax.set_xlabel(col, fontsize=12)
             ax.legend(title='Default')
             st.pyplot(fig)
-            plt.close(fig) # Đóng figure để tránh cảnh báo bộ nhớ
+            plt.close(fig)
         except Exception as e:
             st.error(f"Lỗi khi vẽ biểu đồ: {e}")
     else:
@@ -415,7 +439,7 @@ elif choice == 'Xây dựng mô hình':
         cm = confusion_matrix(y_test, y_pred_out)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Default (0)', 'Default (1)'])
         fig2, ax = plt.subplots(figsize=(6, 6))
-        disp.plot(ax=ax, cmap=plt.cm.Blues) # Sử dụng màu sắc chuyên nghiệp hơn
+        disp.plot(ax=ax, cmap=plt.cm.Blues)
         st.pyplot(fig2)
         plt.close(fig2)
         
@@ -429,6 +453,7 @@ elif choice == 'Xây dựng mô hình':
         st.dataframe(dt.style.format("{:.4f}"))
 
 elif choice == 'Sử dụng mô hình để dự báo':
+    # Trang này được hiển thị mặc định khi index=2
     st.header("⚡ Dự báo PD & Phân tích AI cho Hồ sơ mới")
     
     # Sử dụng st.container và st.expander để tổ chức khu vực upload
@@ -442,44 +467,52 @@ elif choice == 'Sử dụng mô hình để dự báo':
         # Tính X1..X14 từ 3 sheet (GIỮ NGUYÊN)
         try:
             ratios_df = compute_ratios_from_three_sheets(up_xlsx)
+            
+            # Tách riêng 14 cột tiếng Việt (hiển thị) và 14 cột tiếng Anh (dự báo)
+            ratios_display = ratios_df[COMPUTED_COLS].T.rename(columns={0: 'Giá trị'})
+            ratios_predict = ratios_df[MODEL_COLS]
+            
         except Exception as e:
-            st.error(f"❌ Lỗi tính X1…X14: Vui lòng kiểm tra lại cấu trúc 3 sheet trong file Excel. Chi tiết lỗi: {e}")
+            st.error(f"❌ Lỗi tính chỉ số tài chính: Vui lòng kiểm tra lại cấu trúc 3 sheet trong file Excel. Chi tiết lỗi: {e}")
             st.stop()
 
         st.divider()
-        st.markdown("### 1. 🔢 Chỉ số X1…X14 Đã tính")
+        st.markdown("### 1. 🔢 Các Chỉ số Tài chính Đã tính")
         
-        # Tạo payload data và dự báo PD (GIỮ NGUYÊN)
-        data_for_ai = ratios_df.iloc[0].to_dict()
+        # Tạo payload data cho AI (Sử dụng tên tiếng Việt)
+        data_for_ai = ratios_display.to_dict()['Giá trị']
         
         # (Tuỳ chọn) dự báo PD nếu mô hình đã huấn luyện đúng cấu trúc X_1..X_14
         probs = np.nan
         preds = np.nan
-        if set(X.columns) == set(ratios_df.columns):
+        # Kiểm tra mô hình có sẵn sàng dự báo không (đã train và cột khớp)
+        if set(X.columns) == set(ratios_predict.columns):
             try:
-                probs = model.predict_proba(ratios_df[X.columns])[:, 1]
+                probs = model.predict_proba(ratios_predict[X.columns])[:, 1]
                 preds = (probs >= 0.5).astype(int)
-                data_for_ai['PD_Probability'] = probs[0]
-                data_for_ai['PD_Prediction'] = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
+                # Thêm PD vào payload AI
+                data_for_ai['Xác suất Vỡ nợ (PD)'] = probs[0]
+                data_for_ai['Dự đoán PD'] = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
             except Exception as e:
+                # Nếu có lỗi dự báo, chỉ cảnh báo, không dừng app
                 st.warning(f"Không dự báo được PD: {e}")
         
         # Hiển thị X1-X14 và PD trong 2 cột
         col_ratios, col_pd = st.columns([3, 1])
         
         with col_ratios:
-            st.dataframe(ratios_df.style.format("{:.4f}"))
+            # Hiển thị bảng chỉ số tiếng Việt
+            st.dataframe(ratios_display.style.format("{:.4f}"), use_container_width=True)
             
         with col_pd:
             pd_value = f"{probs[0]:.2%}" if pd.notna(probs) else "N/A"
-            pd_caption = "Dự báo Vỡ nợ" if pd.notna(preds) and preds[0] == 1 else "Dự báo Không Vỡ nợ"
             pd_delta = "⬆️ Rủi ro cao" if pd.notna(preds) and preds[0] == 1 else "⬇️ Rủi ro thấp"
             
             st.metric(
                 label="**Xác suất Vỡ nợ (PD)**",
                 value=pd_value,
                 delta=pd_delta if pd.notna(probs) else None,
-                delta_color=("inverse" if pd.notna(preds) and preds[0] == 1 else "normal") # Màu đỏ cho rủi ro cao (inverse)
+                delta_color=("inverse" if pd.notna(preds) and preds[0] == 1 else "normal")
             )
             
         st.divider()
@@ -498,7 +531,6 @@ elif choice == 'Sử dụng mô hình để dự báo':
                     with st.spinner('Đang gửi dữ liệu và chờ Gemini phân tích...'):
                         ai_result = get_ai_analysis(data_for_ai, api_key)
                     
-                    # Tách khuyến nghị để làm nổi bật
                     if "KHÔNG CHO VAY" in ai_result.upper():
                         st.error("🚨 **KHUYẾN NGHỊ CUỐI CÙNG: KHÔNG CHO VAY**")
                     elif "CHO VAY" in ai_result.upper():
