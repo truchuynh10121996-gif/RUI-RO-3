@@ -1,12 +1,8 @@
-numpy
+streamlit
 pandas
+numpy
+scikit-learn
 matplotlib
 seaborn
-scikit-learn
-datetime
-xgboost
-graphviz
-statsmodels
-openpyxl>=3.1
-openai>=1.30
+openpyxl
 google-genai
