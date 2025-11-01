@@ -68,14 +68,14 @@ st.markdown("""
     /* Import Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap');
 
-    /* Màu chủ đạo Agribank */
+    /* Màu chủ đạo - Đỏ và Trắng */
     :root {
-        --primary-green: #00923F;
-        --primary-gold: #FFB81C;
-        --dark-green: #006837;
-        --light-green: #E8F5E9;
-        --bg-gradient: linear-gradient(135deg, #00923F 0%, #006837 100%);
-        --gold-gradient: linear-gradient(135deg, #FFB81C 0%, #FFA000 100%);
+        --primary-red: #E31E24;
+        --bright-red: #FF3B3F;
+        --dark-red: #C41E3A;
+        --light-red: #FFE5E7;
+        --bg-gradient: linear-gradient(135deg, #E31E24 0%, #C41E3A 100%);
+        --red-gradient: linear-gradient(135deg, #FF3B3F 0%, #E31E24 100%);
         --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
@@ -144,7 +144,7 @@ st.markdown("""
         border-radius: 15px;
         box-shadow: var(--shadow);
         margin-bottom: 1.5rem;
-        border-left: 5px solid var(--primary-green);
+        border-left: 5px solid var(--primary-red);
         transition: all 0.3s ease;
         animation: fadeIn 0.6s ease-out;
     }
@@ -155,9 +155,10 @@ st.markdown("""
     }
 
     .custom-card h3 {
-        color: var(--primary-green);
+        color: var(--primary-red);
         margin-bottom: 1rem;
         font-size: 1.5rem;
+        font-weight: 600;
     }
 
     /* Metric cards */
@@ -167,26 +168,27 @@ st.markdown("""
         border-radius: 12px;
         box-shadow: var(--shadow);
         text-align: center;
-        border: 2px solid var(--light-green);
+        border: 2px solid var(--light-red);
         transition: all 0.3s ease;
         margin: 0.5rem;
     }
 
     .metric-card:hover {
-        border-color: var(--primary-green);
+        border-color: var(--primary-red);
         transform: scale(1.05);
     }
 
     .metric-value {
         font-size: 2.5rem;
         font-weight: 700;
-        color: var(--primary-green);
+        color: var(--primary-red);
         margin: 0.5rem 0;
     }
 
     .metric-label {
         font-size: 1rem;
-        color: #666;
+        color: #333;
+        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
@@ -214,7 +216,7 @@ st.markdown("""
         background: white;
         padding: 1.5rem;
         border-radius: 12px;
-        border: 2px dashed var(--primary-green);
+        border: 2px dashed var(--primary-red);
     }
 
     /* Dataframe styling */
@@ -232,10 +234,10 @@ st.markdown("""
 
     /* Expander */
     .streamlit-expanderHeader {
-        background: var(--light-green);
+        background: var(--light-red);
         border-radius: 8px;
         font-weight: 600;
-        color: var(--dark-green) !important;
+        color: var(--dark-red) !important;
     }
 
     /* Logo container */
@@ -275,7 +277,7 @@ st.markdown("""
 
     /* Loading spinner */
     .stSpinner > div {
-        border-top-color: var(--primary-green) !important;
+        border-top-color: var(--primary-red) !important;
     }
 
     /* Tabs */
@@ -288,17 +290,18 @@ st.markdown("""
         border-radius: 8px 8px 0 0;
         padding: 10px 20px;
         font-weight: 500;
+        color: #333 !important;
     }
 
     .stTabs [aria-selected="true"] {
         background: var(--bg-gradient);
-        color: white;
+        color: white !important;
     }
 
     /* Section divider */
     .section-divider {
         height: 3px;
-        background: var(--gold-gradient);
+        background: var(--red-gradient);
         margin: 2rem 0;
         border-radius: 2px;
     }
@@ -585,7 +588,7 @@ metrics_out = {
 # MENU
 # =========================
 menu = ["🎯 Mục tiêu của mô hình", "🔧 Xây dựng mô hình", "🔮 Sử dụng mô hình để dự báo"]
-choice = st.sidebar.selectbox('📋 Danh mục tính năng', menu)
+choice = st.sidebar.selectbox('📋 Danh mục tính năng', menu, index=2)
 
 # =========================
 # TRANG 1: MỤC TIÊU
@@ -660,7 +663,7 @@ elif choice == '🔧 Xây dựng mô hình':
                 fig = make_subplots(rows=1, cols=2, subplot_titles=('Scatter Plot', 'Logistic Regression Curve'))
 
                 # Scatter plot
-                colors = ['#00923F' if v == 0 else '#FFB81C' for v in df['default']]
+                colors = ['#E31E24' if v == 0 else '#FF3B3F' for v in df['default']]
                 fig.add_trace(
                     go.Scatter(x=df[col], y=df['default'], mode='markers',
                               marker=dict(color=colors, size=8, opacity=0.6),
@@ -679,7 +682,7 @@ elif choice == '🔧 Xây dựng mô hình':
 
                 fig.add_trace(
                     go.Scatter(x=x_range, y=y_curve, mode='lines',
-                              line=dict(color='#00923F', width=3),
+                              line=dict(color='#E31E24', width=3),
                               name='Probability curve'),
                     row=1, col=2
                 )
@@ -730,7 +733,7 @@ elif choice == '🔧 Xây dựng mô hình':
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines',
                                 name=f'ROC (AUC = {metrics_out["AUC"]:.3f})',
-                                line=dict(color='#00923F', width=3)))
+                                line=dict(color='#E31E24', width=3)))
         fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines',
                                 name='Random',
                                 line=dict(color='gray', width=2, dash='dash')))
@@ -756,7 +759,7 @@ elif choice == '🔧 Xây dựng mô hình':
             text=cm,
             texttemplate='%{text}',
             textfont={"size": 20},
-            colorscale='Greens',
+            colorscale='Reds',
             showscale=True
         ))
 
@@ -792,8 +795,206 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         st.markdown("### 📊 Kết quả tính toán 14 chỉ số tài chính")
 
         # Hiển thị bảng với styling
-        styled_df = ratios_df.style.format("{:.4f}").background_gradient(cmap='Greens')
+        styled_df = ratios_df.style.format("{:.4f}").background_gradient(cmap='Reds')
         st.dataframe(styled_df, use_container_width=True)
+
+        # Biểu đồ cột chuyên nghiệp cho các chỉ số
+        st.markdown("#### 📈 Biểu đồ phân tích 14 chỉ số tài chính")
+
+        # Tạo biểu đồ cột
+        fig_bar = go.Figure()
+
+        x_labels = [f"X{i}" for i in range(1, 15)]
+        x_values = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 15)]
+
+        # Tạo màu dựa trên giá trị (màu đỏ cho giá trị âm hoặc thấp, màu xanh cho giá trị cao)
+        colors = ['#E31E24' if v < 0 else '#FF6B6B' if v < 0.5 else '#4CAF50' for v in x_values]
+
+        fig_bar.add_trace(go.Bar(
+            x=x_labels,
+            y=x_values,
+            marker=dict(
+                color=colors,
+                line=dict(color='#C41E3A', width=1.5)
+            ),
+            text=[f'{v:.2f}' for v in x_values],
+            textposition='auto',
+            textfont=dict(size=10, color='white', family='Arial Black'),
+            hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
+        ))
+
+        fig_bar.update_layout(
+            title={
+                'text': 'Phân tích Chi tiết 14 Chỉ số Tài chính',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 18, 'color': '#E31E24', 'family': 'Arial Black'}
+            },
+            xaxis=dict(
+                title='Chỉ số',
+                titlefont=dict(size=14, color='#333'),
+                tickfont=dict(size=12, color='#333'),
+                showgrid=True,
+                gridcolor='#f0f0f0'
+            ),
+            yaxis=dict(
+                title='Giá trị',
+                titlefont=dict(size=14, color='#333'),
+                tickfont=dict(size=12, color='#333'),
+                showgrid=True,
+                gridcolor='#f0f0f0'
+            ),
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            height=450,
+            hovermode='x unified',
+            showlegend=False
+        )
+
+        st.plotly_chart(fig_bar, use_container_width=True)
+
+        # Biểu đồ radar cho nhóm chỉ số
+        st.markdown("#### 🎯 Biểu đồ Radar - Phân tích theo Nhóm")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Nhóm sinh lời (X1-X4)
+            fig_radar1 = go.Figure()
+
+            categories = ['Biên LN gộp<br>(X1)', 'Biên LNTT<br>(X2)', 'ROA<br>(X3)', 'ROE<br>(X4)']
+            values = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 5)]
+
+            fig_radar1.add_trace(go.Scatterpolar(
+                r=values,
+                theta=categories,
+                fill='toself',
+                fillcolor='rgba(227, 30, 36, 0.3)',
+                line=dict(color='#E31E24', width=2),
+                marker=dict(size=8, color='#E31E24'),
+                name='Sinh lời'
+            ))
+
+            fig_radar1.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        showticklabels=True,
+                        tickfont=dict(size=10, color='#333'),
+                        gridcolor='#f0f0f0'
+                    ),
+                    angularaxis=dict(
+                        tickfont=dict(size=11, color='#333')
+                    ),
+                    bgcolor='white'
+                ),
+                showlegend=False,
+                title={
+                    'text': 'Nhóm Sinh Lời',
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'font': {'size': 14, 'color': '#E31E24'}
+                },
+                height=350,
+                paper_bgcolor='white'
+            )
+
+            st.plotly_chart(fig_radar1, use_container_width=True)
+
+        with col2:
+            # Nhóm thanh khoản và nợ (X5-X11)
+            fig_radar2 = go.Figure()
+
+            categories2 = ['Nợ/TS<br>(X5)', 'Nợ/VCSH<br>(X6)', 'TT hiện hành<br>(X7)',
+                          'TT nhanh<br>(X8)', 'Trả lãi<br>(X9)', 'Trả nợ<br>(X10)', 'Tiền/VCSH<br>(X11)']
+            values2 = [ratios_df.iloc[0][f"X_{i}"] for i in range(5, 12)]
+
+            # Chuẩn hóa giá trị để hiển thị tốt hơn trên radar
+            max_val = max([abs(v) for v in values2]) if values2 else 1
+            normalized_values = [v / max_val if max_val > 0 else v for v in values2]
+
+            fig_radar2.add_trace(go.Scatterpolar(
+                r=normalized_values,
+                theta=categories2,
+                fill='toself',
+                fillcolor='rgba(255, 59, 63, 0.3)',
+                line=dict(color='#FF3B3F', width=2),
+                marker=dict(size=8, color='#FF3B3F'),
+                name='Thanh khoản & Nợ'
+            ))
+
+            fig_radar2.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        showticklabels=True,
+                        tickfont=dict(size=10, color='#333'),
+                        gridcolor='#f0f0f0'
+                    ),
+                    angularaxis=dict(
+                        tickfont=dict(size=10, color='#333')
+                    ),
+                    bgcolor='white'
+                ),
+                showlegend=False,
+                title={
+                    'text': 'Nhóm Thanh khoản & Nợ',
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'font': {'size': 14, 'color': '#FF3B3F'}
+                },
+                height=350,
+                paper_bgcolor='white'
+            )
+
+            st.plotly_chart(fig_radar2, use_container_width=True)
+
+        # Biểu đồ hiệu quả hoạt động
+        st.markdown("#### ⚙️ Hiệu quả Hoạt động")
+        fig_efficiency = go.Figure()
+
+        categories3 = ['Vòng quay HTK (X12)', 'Kỳ thu tiền (X13)', 'Hiệu suất TS (X14)']
+        values3 = [ratios_df.iloc[0][f"X_{i}"] for i in range(12, 15)]
+
+        fig_efficiency.add_trace(go.Bar(
+            x=categories3,
+            y=values3,
+            marker=dict(
+                color=['#E31E24', '#FF3B3F', '#FF6B6B'],
+                line=dict(color='#C41E3A', width=1.5)
+            ),
+            text=[f'{v:.2f}' for v in values3],
+            textposition='auto',
+            textfont=dict(size=12, color='white', family='Arial Black'),
+            hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
+        ))
+
+        fig_efficiency.update_layout(
+            title={
+                'text': 'Chỉ số Hiệu quả Hoạt động',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 16, 'color': '#E31E24', 'family': 'Arial Black'}
+            },
+            xaxis=dict(
+                tickfont=dict(size=12, color='#333'),
+                showgrid=False
+            ),
+            yaxis=dict(
+                title='Giá trị',
+                titlefont=dict(size=14, color='#333'),
+                tickfont=dict(size=12, color='#333'),
+                showgrid=True,
+                gridcolor='#f0f0f0'
+            ),
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            height=350,
+            showlegend=False
+        )
+
+        st.plotly_chart(fig_efficiency, use_container_width=True)
+
         st.markdown('</div>', unsafe_allow_html=True)
 
         # Tạo payload data cho AI
@@ -821,7 +1022,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
 
                 with col2:
                     status = "VỠ NỢ ❌" if preds[0] == 1 else "AN TOÀN ✅"
-                    color = "#FFB81C" if preds[0] == 1 else "#00923F"
+                    color = "#E31E24" if preds[0] == 1 else "#00C853"
                     st.markdown(f"""
                     <div class="metric-card">
                         <div class="metric-label">Dự báo</div>
@@ -844,20 +1045,20 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                     value=probs[0] * 100,
                     domain={'x': [0, 1], 'y': [0, 1]},
                     title={'text': "Xác suất vỡ nợ (%)", 'font': {'size': 24}},
-                    delta={'reference': 50, 'increasing': {'color': "red"}},
+                    delta={'reference': 50, 'increasing': {'color': "#E31E24"}},
                     gauge={
-                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
-                        'bar': {'color': "#00923F" if probs[0] < 0.5 else "#FFB81C"},
+                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "#E31E24"},
+                        'bar': {'color': "#00C853" if probs[0] < 0.5 else "#E31E24"},
                         'bgcolor': "white",
                         'borderwidth': 2,
-                        'bordercolor': "gray",
+                        'bordercolor': "#E31E24",
                         'steps': [
                             {'range': [0, 30], 'color': '#E8F5E9'},
                             {'range': [30, 70], 'color': '#FFF3E0'},
-                            {'range': [70, 100], 'color': '#FFEBEE'}
+                            {'range': [70, 100], 'color': '#FFE5E7'}
                         ],
                         'threshold': {
-                            'line': {'color': "red", 'width': 4},
+                            'line': {'color': "#E31E24", 'width': 4},
                             'thickness': 0.75,
                             'value': 50
                         }
@@ -890,11 +1091,12 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
 
                     st.markdown("#### 📋 Kết quả Phân tích từ Gemini AI")
                     st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    <div style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
                                 padding: 2rem;
                                 border-radius: 15px;
-                                border-left: 5px solid #FFB81C;
-                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                border-left: 5px solid #E31E24;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                color: #333;">
                         {ai_result}
                     </div>
                     """, unsafe_allow_html=True)
