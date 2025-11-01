@@ -1,0 +1,314 @@
+/* Agribank Theme - Modern Dashboard CSS */
+
+/* Color Palette */
+:root {
+    --primary-dark-red: #800000;
+    --accent-gold: #D4AF37;
+    --neutral-light: #F7F7F7;
+    --neutral-lighter: #FAFAFA;
+    --neutral-dark: #1F2937;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 250ms ease-in-out;
+}
+
+/* Main Container Styling */
+.main {
+    background-color: var(--neutral-lighter);
+}
+
+/* Header Styling */
+.agribank-header {
+    background: linear-gradient(135deg, var(--primary-dark-red) 0%, #600000 100%);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: var(--transition-normal);
+}
+
+.agribank-header:hover {
+    box-shadow: 0 12px 20px rgba(128, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.agribank-header img {
+    border-radius: 8px;
+    border: 2px solid var(--accent-gold);
+    transition: var(--transition-fast);
+}
+
+.agribank-header img:hover {
+    transform: scale(1.05);
+    border-color: white;
+}
+
+.agribank-header h1 {
+    color: white !important;
+    margin: 0 !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Card Styling */
+.metric-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--primary-dark-red);
+    transition: var(--transition-normal);
+    margin-bottom: 1rem;
+}
+
+.metric-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    border-left-color: var(--accent-gold);
+}
+
+.metric-card h3 {
+    color: var(--primary-dark-red);
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.metric-card p {
+    color: var(--neutral-dark);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Feature Table Styling */
+.feature-table {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 1.5rem;
+    transition: var(--transition-normal);
+}
+
+.feature-table:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* Tab Styling Override */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    padding: 0 24px;
+    background-color: var(--neutral-light);
+    border-radius: 8px;
+    color: var(--neutral-dark);
+    font-weight: 600;
+    transition: var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: var(--neutral-lighter);
+    border-color: var(--accent-gold);
+    transform: translateY(-2px);
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, var(--primary-dark-red) 0%, #600000 100%);
+    color: white !important;
+    border-color: var(--accent-gold);
+}
+
+/* Button Styling */
+.stButton > button {
+    background: linear-gradient(135deg, var(--primary-dark-red) 0%, #600000 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-normal);
+}
+
+.stButton > button:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #600000 0%, var(--primary-dark-red) 100%);
+}
+
+/* File Uploader Styling */
+.stFileUploader {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px dashed var(--primary-dark-red);
+    transition: var(--transition-normal);
+}
+
+.stFileUploader:hover {
+    border-color: var(--accent-gold);
+    background-color: var(--neutral-lighter);
+}
+
+/* Dataframe Styling */
+.stDataFrame {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+/* Expander Styling */
+.streamlit-expanderHeader {
+    background-color: white;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-dark-red);
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--primary-dark-red);
+    transition: var(--transition-fast);
+}
+
+.streamlit-expanderHeader:hover {
+    background-color: var(--neutral-lighter);
+    border-left-color: var(--accent-gold);
+}
+
+/* Info/Success/Warning/Error Boxes */
+.stAlert {
+    border-radius: 10px;
+    border-left: 4px solid;
+    padding: 1rem;
+    transition: var(--transition-fast);
+}
+
+.stAlert:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Spinner Styling */
+.stSpinner > div {
+    border-top-color: var(--primary-dark-red) !important;
+}
+
+/* Select Box Styling */
+.stSelectbox > div > div {
+    border-radius: 8px;
+    border-color: var(--primary-dark-red);
+    transition: var(--transition-fast);
+}
+
+.stSelectbox > div > div:hover {
+    border-color: var(--accent-gold);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Text Input Styling */
+.stTextInput > div > div > input {
+    border-radius: 8px;
+    border: 2px solid var(--primary-dark-red);
+    transition: var(--transition-fast);
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* Chart Container */
+.chart-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    margin: 1rem 0;
+    transition: var(--transition-normal);
+}
+
+.chart-container:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* Sidebar Styling (if still used) */
+.css-1d391kg {
+    background-color: var(--neutral-light);
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .agribank-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .agribank-header h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .metric-card {
+        padding: 1rem;
+    }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--neutral-light);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-dark-red);
+    border-radius: 10px;
+    transition: var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+}
