@@ -61,23 +61,28 @@ st.set_page_config(
 )
 
 # =========================
-# CSS HIỆN ĐẠI VÀ CHUYÊN NGHIỆP
+# CSS HIỆN ĐẠI VÀ CHUYÊN NGHIỆP - MÀU SẮC TRẺ TRUNG
 # =========================
 st.markdown("""
 <style>
     /* Import Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap');
 
-    /* Màu chủ đạo - Đỏ và Trắng */
+    /* Màu chủ đạo - Gradient Hiện Đại & Trẻ Trung */
     :root {
-        --primary-red: #E31E24;
-        --bright-red: #FF3B3F;
-        --dark-red: #C41E3A;
-        --light-red: #FFE5E7;
-        --bg-gradient: linear-gradient(135deg, #E31E24 0%, #C41E3A 100%);
-        --red-gradient: linear-gradient(135deg, #FF3B3F 0%, #E31E24 100%);
+        --primary-blue: #4A90E2;
+        --primary-purple: #9B59B6;
+        --primary-teal: #1ABC9C;
+        --primary-orange: #FF6B6B;
+        --primary-pink: #FF69B4;
+        --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --header-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --card-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+        --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
     /* Reset và base */
@@ -92,7 +97,7 @@ st.markdown("""
 
     /* Main container */
     .main {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
     }
 
     /* Sidebar styling */
@@ -114,7 +119,7 @@ st.markdown("""
 
     /* Header with gradient */
     .main-header {
-        background: var(--bg-gradient);
+        background: var(--header-gradient);
         padding: 2.5rem 2rem;
         border-radius: 20px;
         margin-bottom: 2rem;
@@ -144,18 +149,22 @@ st.markdown("""
         border-radius: 15px;
         box-shadow: var(--shadow);
         margin-bottom: 1.5rem;
-        border-left: 5px solid var(--primary-red);
+        border-left: 5px solid transparent;
+        border-image: var(--card-gradient) 1;
         transition: all 0.3s ease;
         animation: fadeIn 0.6s ease-out;
     }
 
     .custom-card:hover {
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--shadow-hover);
         transform: translateY(-5px);
     }
 
     .custom-card h3 {
-        color: var(--primary-red);
+        background: var(--card-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 1rem;
         font-size: 1.5rem;
         font-weight: 600;
@@ -168,20 +177,41 @@ st.markdown("""
         border-radius: 12px;
         box-shadow: var(--shadow);
         text-align: center;
-        border: 2px solid var(--light-red);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        position: relative;
         transition: all 0.3s ease;
         margin: 0.5rem;
     }
 
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 12px;
+        padding: 2px;
+        background: var(--card-gradient);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        z-index: -1;
+    }
+
     .metric-card:hover {
-        border-color: var(--primary-red);
         transform: scale(1.05);
+        box-shadow: var(--shadow-lg);
     }
 
     .metric-value {
         font-size: 2.5rem;
         font-weight: 700;
-        color: var(--primary-red);
+        background: var(--card-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin: 0.5rem 0;
     }
 
@@ -280,22 +310,37 @@ st.markdown("""
         border-top-color: var(--primary-red) !important;
     }
 
-    /* Tabs */
+    /* Tabs - Hiện đại và đầy màu sắc */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 12px;
+        background: transparent;
+        border-bottom: none;
     }
 
     .stTabs [data-baseweb="tab"] {
-        background-color: white;
-        border-radius: 8px 8px 0 0;
-        padding: 10px 20px;
-        font-weight: 500;
-        color: #333 !important;
+        background: white;
+        border-radius: 12px;
+        padding: 14px 28px;
+        font-weight: 600;
+        color: #555 !important;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+    }
+
+    .stTabs [data-baseweb="tab"]:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        border-color: transparent;
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
     }
 
     .stTabs [aria-selected="true"] {
-        background: var(--bg-gradient);
+        background: var(--card-gradient) !important;
         color: white !important;
+        border-color: transparent !important;
+        box-shadow: var(--shadow-lg) !important;
+        transform: translateY(-2px);
     }
 
     /* Section divider */
@@ -585,15 +630,14 @@ metrics_out = {
 }
 
 # =========================
-# MENU
+# TABS - MENU NGANG
 # =========================
-menu = ["🎯 Mục tiêu của mô hình", "🔧 Xây dựng mô hình", "🔮 Sử dụng mô hình để dự báo"]
-choice = st.sidebar.selectbox('📋 Danh mục tính năng', menu, index=2)
+tab1, tab2, tab3 = st.tabs(["🎯 Mục tiêu của mô hình", "🔧 Xây dựng mô hình", "🔮 Sử dụng mô hình để dự báo"])
 
 # =========================
-# TRANG 1: MỤC TIÊU
+# TAB 1: MỤC TIÊU
 # =========================
-if choice == '🎯 Mục tiêu của mô hình':
+with tab1:
     st.markdown('<div class="custom-card">', unsafe_allow_html=True)
     st.markdown("### 🎯 Mục tiêu của mô hình")
     st.markdown("""
@@ -622,9 +666,9 @@ if choice == '🎯 Mục tiêu của mô hình':
                 st.image(img, use_container_width=True)
 
 # =========================
-# TRANG 2: XÂY DỰNG MÔ HÌNH
+# TAB 2: XÂY DỰNG MÔ HÌNH
 # =========================
-elif choice == '🔧 Xây dựng mô hình':
+with tab2:
     st.markdown('<div class="custom-card">', unsafe_allow_html=True)
     st.markdown("### 🔧 Xây dựng và đánh giá mô hình")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -772,9 +816,9 @@ elif choice == '🔧 Xây dựng mô hình':
         st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# TRANG 3: SỬ DỤNG MÔ HÌNH
+# TAB 3: SỬ DỤNG MÔ HÌNH
 # =========================
-elif choice == '🔮 Sử dụng mô hình để dự báo':
+with tab3:
     st.markdown('<div class="custom-card">', unsafe_allow_html=True)
     st.markdown("### 🔮 Sử dụng mô hình để dự báo & Phân tích AI")
     st.info("📋 File Excel phải có đủ 3 sheet: **CDKT** (Cân đối kế toán), **BCTN** (Báo cáo thu nhập), **LCTT** (Lưu chuyển tiền tệ)")
@@ -794,77 +838,67 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         st.markdown('<div class="custom-card">', unsafe_allow_html=True)
         st.markdown("### 📊 Kết quả tính toán 14 chỉ số tài chính")
 
-        # Hiển thị bảng với styling
-        styled_df = ratios_df.style.format("{:.4f}").background_gradient(cmap='Reds')
-        st.dataframe(styled_df, use_container_width=True)
+        # Tạo mapping tên đầy đủ cho các chỉ số
+        indicator_names = {
+            'X_1': 'Biên lợi nhuận gộp (Gross Profit Margin)',
+            'X_2': 'Biên lợi nhuận trước thuế (Pretax Profit Margin)',
+            'X_3': 'ROA - Tỷ suất sinh lời trên tổng tài sản',
+            'X_4': 'ROE - Tỷ suất sinh lời trên vốn chủ sở hữu',
+            'X_5': 'Tỷ lệ nợ trên tổng tài sản (Debt to Assets)',
+            'X_6': 'Tỷ lệ nợ trên vốn chủ sở hữu (Debt to Equity)',
+            'X_7': 'Khả năng thanh toán hiện hành (Current Ratio)',
+            'X_8': 'Khả năng thanh toán nhanh (Quick Ratio)',
+            'X_9': 'Khả năng trả lãi vay (Interest Coverage)',
+            'X_10': 'Khả năng trả nợ gốc và lãi (Debt Service Coverage)',
+            'X_11': 'Tỷ lệ tiền mặt trên vốn chủ sở hữu',
+            'X_12': 'Vòng quay hàng tồn kho (Inventory Turnover)',
+            'X_13': 'Kỳ thu tiền bình quân (Days Sales Outstanding)',
+            'X_14': 'Hiệu suất sử dụng tài sản (Asset Turnover)'
+        }
 
-        # Biểu đồ cột chuyên nghiệp cho các chỉ số
-        st.markdown("#### 📈 Biểu đồ phân tích 14 chỉ số tài chính")
+        # Tạo DataFrame mới với tên đầy đủ
+        detailed_results = []
+        for col in ratios_df.columns:
+            value = ratios_df.iloc[0][col]
+            name = indicator_names.get(col, col)
+            detailed_results.append({
+                'Chỉ số': name,
+                'Giá trị': f"{value:.4f}" if pd.notna(value) and not np.isinf(value) else "N/A"
+            })
 
-        # Tạo biểu đồ cột
-        fig_bar = go.Figure()
+        results_df = pd.DataFrame(detailed_results)
 
-        x_labels = [f"X{i}" for i in range(1, 15)]
-        x_values_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 15)]
+        # Hiển thị kết quả chi tiết theo nhóm
+        st.markdown("#### 📊 Kết quả tính toán chi tiết các chỉ số tài chính")
 
-        # Hàm xử lý giá trị an toàn
-        def safe_float(v):
-            """Chuyển đổi giá trị thành float an toàn, xử lý NaN và Infinity"""
-            try:
-                if pd.isna(v) or np.isinf(v) or v is None:
-                    return 0.0
-                return float(v)
-            except (ValueError, TypeError):
-                return 0.0
+        # Nhóm 1: Khả năng sinh lời
+        st.markdown("##### 📈 Nhóm 1: Khả năng sinh lời")
+        profit_cols = ['Biên lợi nhuận gộp (Gross Profit Margin)',
+                       'Biên lợi nhuận trước thuế (Pretax Profit Margin)',
+                       'ROA - Tỷ suất sinh lời trên tổng tài sản',
+                       'ROE - Tỷ suất sinh lời trên vốn chủ sở hữu']
+        profit_df = results_df[results_df['Chỉ số'].isin(profit_cols)]
+        st.dataframe(profit_df, use_container_width=True, hide_index=True)
 
-        # Xử lý NaN và Infinity - thay thế bằng 0
-        x_values = [safe_float(v) for v in x_values_raw]
+        # Nhóm 2: Thanh khoản và cơ cấu nợ
+        st.markdown("##### 💰 Nhóm 2: Thanh khoản và cơ cấu nợ")
+        liquidity_cols = ['Tỷ lệ nợ trên tổng tài sản (Debt to Assets)',
+                          'Tỷ lệ nợ trên vốn chủ sở hữu (Debt to Equity)',
+                          'Khả năng thanh toán hiện hành (Current Ratio)',
+                          'Khả năng thanh toán nhanh (Quick Ratio)',
+                          'Khả năng trả lãi vay (Interest Coverage)',
+                          'Khả năng trả nợ gốc và lãi (Debt Service Coverage)',
+                          'Tỷ lệ tiền mặt trên vốn chủ sở hữu']
+        liquidity_df = results_df[results_df['Chỉ số'].isin(liquidity_cols)]
+        st.dataframe(liquidity_df, use_container_width=True, hide_index=True)
 
-        # Tạo màu dựa trên giá trị (màu đỏ cho giá trị âm hoặc thấp, màu xanh cho giá trị cao)
-        colors = ['#E31E24' if v < 0 else '#FF6B6B' if v < 0.5 else '#4CAF50' for v in x_values]
-
-        fig_bar.add_trace(go.Bar(
-            x=x_labels,
-            y=x_values,
-            marker=dict(
-                color=colors,
-                line=dict(color='#C41E3A', width=1.5)
-            ),
-            text=[f'{safe_float(v):.2f}' for v in x_values],
-            textposition='auto',
-            textfont=dict(size=10, color='white', family='Arial Black'),
-            hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
-        ))
-
-        fig_bar.update_layout(
-            title={
-                'text': 'Phân tích Chi tiết 14 Chỉ số Tài chính',
-                'x': 0.5,
-                'xanchor': 'center',
-                'font': {'size': 18, 'color': '#E31E24', 'family': 'Arial Black'}
-            },
-            xaxis=dict(
-                title='Chỉ số',
-                titlefont=dict(size=14, color='#333'),
-                tickfont=dict(size=12, color='#333'),
-                showgrid=True,
-                gridcolor='#f0f0f0'
-            ),
-            yaxis=dict(
-                title='Giá trị',
-                titlefont=dict(size=14, color='#333'),
-                tickfont=dict(size=12, color='#333'),
-                showgrid=True,
-                gridcolor='#f0f0f0'
-            ),
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            height=450,
-            hovermode='x unified',
-            showlegend=False
-        )
-
-        st.plotly_chart(fig_bar, use_container_width=True)
+        # Nhóm 3: Hiệu quả hoạt động
+        st.markdown("##### ⚙️ Nhóm 3: Hiệu quả hoạt động")
+        efficiency_cols = ['Vòng quay hàng tồn kho (Inventory Turnover)',
+                          'Kỳ thu tiền bình quân (Days Sales Outstanding)',
+                          'Hiệu suất sử dụng tài sản (Asset Turnover)']
+        efficiency_df = results_df[results_df['Chỉ số'].isin(efficiency_cols)]
+        st.dataframe(efficiency_df, use_container_width=True, hide_index=True)
 
         # Biểu đồ radar cho nhóm chỉ số
         st.markdown("#### 🎯 Biểu đồ Radar - Phân tích theo Nhóm")
@@ -1127,10 +1161,18 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Gemini AI Analysis
+        # Gemini AI Analysis - Phần quan trọng được khôi phục
         st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-        st.markdown("### 🤖 Phân tích AI & Đề xuất cho vay")
-        st.markdown("Sử dụng **Gemini AI** để phân tích chuyên sâu và đưa ra khuyến nghị cho vay")
+        st.markdown("### 🤖 Phân tích của AI Gemini & Đề xuất cho vay")
+        st.markdown("""
+        Sử dụng **Gemini AI** để phân tích chuyên sâu các chỉ số tài chính và đưa ra khuyến nghị cho vay.
+
+        AI sẽ phân tích:
+        - 📊 Khả năng sinh lời của doanh nghiệp
+        - 💰 Tình hình thanh khoản và cơ cấu nợ
+        - ⚙️ Hiệu quả hoạt động kinh doanh
+        - ✅ Khuyến nghị CHO VAY hoặc KHÔNG CHO VAY
+        """)
 
         if st.button("🚀 Yêu cầu AI Phân tích", use_container_width=True):
             api_key = st.secrets.get("GEMINI_API_KEY")
@@ -1141,15 +1183,21 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
 
                     st.markdown("#### 📋 Kết quả Phân tích từ Gemini AI")
                     st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                                padding: 2rem;
-                                border-radius: 15px;
-                                border-left: 5px solid #E31E24;
-                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                                color: #333;">
+                    <div style="background: linear-gradient(135deg, #e0f7fa 0%, #e1f5fe 100%);
+                                padding: 2.5rem;
+                                border-radius: 20px;
+                                border: 3px solid transparent;
+                                border-image: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) 1;
+                                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                                color: #1a237e;
+                                font-size: 1.05rem;
+                                line-height: 1.8;
+                                white-space: pre-wrap;">
                         {ai_result}
                     </div>
                     """, unsafe_allow_html=True)
+
+                    st.success("✅ Phân tích AI hoàn tất!")
             else:
                 st.error("❌ Lỗi: Không tìm thấy Khóa API. Vui lòng cấu hình **'GEMINI_API_KEY'** trong Streamlit Secrets.")
 
