@@ -11,3 +11,11 @@ statsmodels
 openpyxl>=3.1
 openai>=1.30
 google-genai
+from datetime import datetime
+import os
+import numpy as np
+import pandas as pd
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+
