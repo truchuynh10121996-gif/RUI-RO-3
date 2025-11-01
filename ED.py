@@ -52,7 +52,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh cho MÀU SẮC, PHÔNG CHỮ, HIỆU ỨNG ĐỘNG
+# Thêm CSS tùy chỉnh cho MÀU SẮC, PHÔNG CHỮ, HIỆU ỨNG ĐỘNG - ĐÃ THÊM DẢI BANNER
 st.markdown("""
 <style>
 /* Ẩn menu và footer mặc định */
@@ -63,6 +63,34 @@ footer {visibility: hidden;}
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* ------------------------------------------------------------------------------------------------
+| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (Bao gồm cả Tiêu đề và Subtitle)
+------------------------------------------------------------------------------------------------ */
+/* Container bao quanh tiêu đề chính (st.title) và tiêu đề phụ (st.write) */
+.banner-title-container {
+    background: linear-gradient(90deg, #e0f0ff, #f7f9fc, #e0f0ff); /* Màu chuyển sắc nhẹ nhàng */
+    padding: 20px 30px; /* Tăng padding để làm dải banner dày hơn */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0 4px 12px rgba(0, 76, 153, 0.1); /* Shadow nhẹ nhàng, chuyên nghiệp */
+    margin-bottom: 20px; /* Khoảng cách với nội dung bên dưới */
+    text-align: center;
+}
+/* Đảm bảo h1 trong banner sử dụng màu sắc đồng bộ */
+.banner-title-container h1 {
+    color: #004c99 !important; /* Xanh Navy Đậm cho tiêu đề */
+    font-weight: 900 !important;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    animation: none; /* Tắt animation 'wave' của h1 nếu nó quá nổi bật */
+}
+/* Đảm bảo h3 (subtitle) trong banner sử dụng màu sắc đồng bộ */
+.banner-title-container h3 {
+    color: #1a75ff !important; /* Xanh tươi hơn cho tiêu đề phụ */
+    font-weight: 600 !important;
+    margin-top: -10px; /* Kéo lên gần tiêu đề chính */
+    border-bottom: none;
+}
+/* ------------------------------------------------------------------------------------------------ */
 
 /* Tiêu đề chính (Header) - Màu xanh đậm chuyên nghiệp + Hiệu ứng lượn sóng nhẹ (animation) */
 h1 {
@@ -158,7 +186,7 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=[
-                 {"role": "user", "parts": [{"text": sys_prompt + "\n\n" + user_prompt}]}
+                {"role": "user", "parts": [{"text": sys_prompt + "\n\n" + user_prompt}]}
             ],
             config={"system_instruction": sys_prompt}
         )
@@ -170,7 +198,7 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
 
 
 # =========================
-# TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) - SỬ DỤNG TÊN TIẾNG VIỆT
+# TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) - SỬ DỤNG TÊN TIẾNG VIỆT (GIỮ NGUYÊN)
 # =========================
 
 # Bảng ánh xạ Tên chỉ số tiếng Việt
@@ -249,25 +277,25 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
 
     # ---- Tính toán các biến số tài chính (GIỮ NGUYÊN CÁCH TÍNH)
-    DTT_prev, DTT_cur    = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
+    DTT_prev, DTT_cur     = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
-    LNG_prev, LNG_cur    = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
+    LNG_prev, LNG_cur     = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
-    LV_prev, LV_cur      = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-    TTS_prev, TTS_cur      = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
-    VCSH_prev, VCSH_cur    = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
-    NPT_prev, NPT_cur      = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
-    TSNH_prev, TSNH_cur    = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
-    NNH_prev, NNH_cur      = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
-    HTK_prev, HTK_cur      = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
-    Tien_prev, Tien_cur    = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
-    KPT_prev, KPT_cur      = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
-    NDH_prev, NDH_cur      = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
+    LV_prev, LV_cur       = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
+    TTS_prev, TTS_cur       = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
+    VCSH_prev, VCSH_cur     = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
+    NPT_prev, NPT_cur       = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
+    TSNH_prev, TSNH_cur     = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
+    NNH_prev, NNH_cur       = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
+    HTK_prev, HTK_cur       = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
+    Tien_prev, Tien_cur     = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
+    KPT_prev, KPT_cur       = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
+    NDH_prev, NDH_cur       = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
-    if pd.notna(LV_cur):   LV_cur    = abs(LV_cur)
-    if pd.notna(KH_cur):   KH_cur    = abs(KH_cur)
+    if pd.notna(LV_cur):    LV_cur     = abs(LV_cur)
+    if pd.notna(KH_cur):    KH_cur     = abs(KH_cur)
 
     def avg(a, b):
         if pd.isna(a) and pd.isna(b): return np.nan
@@ -304,8 +332,8 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 
     # Khởi tạo DataFrame với tên cột tiếng Việt mới
     ratios = pd.DataFrame([[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14]],
-                         columns=COMPUTED_COLS)
-                         
+                          columns=COMPUTED_COLS)
+                          
     # Thêm cột X_1..X_14 ẩn để phục vụ việc dự báo mô hình
     ratios[[f"X_{i}" for i in range(1, 15)]] = ratios.values
     return ratios
@@ -315,11 +343,14 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 # =========================
 np.random.seed(0)
 
-# Ẩn menu và footer mặc định của Streamlit (Đã chuyển lên CSS)
-
-
+# ------------------------------------------------------------------------------------------------
+# THAY ĐỔI 1 (Tiếp): Áp dụng dải banner CSS đã tạo
+# ------------------------------------------------------------------------------------------------
+st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
 st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
 st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâng cao")
+st.markdown('</div>', unsafe_allow_html=True)
+# ------------------------------------------------------------------------------------------------
 
 # Hiển thị trạng thái thư viện AI (Sử dụng cột để bố trí đẹp hơn)
 col_ai_status, col_date = st.columns([3, 1])
@@ -363,8 +394,8 @@ if df is None:
         st.header("🎯 Mục tiêu của Mô hình")
         st.info("Ứng dụng này cần dữ liệu huấn luyện để bắt đầu hoạt động.")
     elif choice == 'Xây dựng mô hình':
-         st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
-         st.error("❌ **Không thể xây dựng mô hình**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để bắt đầu.")
+          st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
+          st.error("❌ **Không thể xây dựng mô hình**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để bắt đầu.")
         
     st.stop()
 
@@ -422,6 +453,7 @@ if choice == 'Mục tiêu của mô hình':
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
+        #  # Thay thế 3 hình ảnh
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 st.image(img)
@@ -558,31 +590,46 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 # Nếu có lỗi dự báo, chỉ cảnh báo, không dừng app
                 st.warning(f"Không dự báo được PD: {e}")
         
-        # Hiển thị X1-X14 và PD trong 2 cột
-        col_ratios, col_pd = st.columns([3, 1])
+        # ------------------------------------------------------------------------------------------------
+        # THAY ĐỔI 2: Chia bảng chỉ số X1-X14 thành 2 cột để hiển thị đẹp mắt hơn
+        # ------------------------------------------------------------------------------------------------
+        pd_col_1, pd_col_2, pd_col_pd = st.columns([2, 2, 1]) # Chia làm 3 cột, 2 cột giữa hiển thị ratios, 1 cột cuối hiển thị PD
         
-        with col_ratios:
-            # Hiển thị bảng chỉ số tiếng Việt - Thêm màu cho các chỉ số quan trọng (Thanh khoản, Nợ)
-            def color_ratios(val):
-                """Ánh xạ màu dựa trên tên chỉ số và giá trị (tạm thời để hiển thị đẹp)"""
-                # Chỉ số Thanh khoản (X7, X8) - Green/Yellow
-                if "Thanh toán" in val.name and val.values[0] < 1.0: return ['background-color: #ffcccc' for _ in val] # Dưới 1: Báo động đỏ
-                if "Thanh toán" in val.name and val.values[0] > 1.5: return ['background-color: #ccffcc' for _ in val] # Trên 1.5: Tốt
-                # Chỉ số Nợ (X5, X6) - Red/Green
-                if "Tỷ lệ Nợ/" in val.name and val.values[0] > 1.0: return ['background-color: #ffcccc' for _ in val] # Trên 1: Rủi ro cao
-                if "Tỷ lệ Nợ/" in val.name and val.values[0] < 0.5: return ['background-color: #ccffcc' for _ in val] # Dưới 0.5: Tốt
-                # Chỉ số Sinh lời (X1, X2, X3, X4) - Green/Yellow
-                if "Lợi nhuận" in val.name or "ROA" in val.name or "ROE" in val.name:
-                    if val.values[0] <= 0: return ['background-color: #ffcccc' for _ in val]
-                    if val.values[0] > 0.1: return ['background-color: #ccffcc' for _ in val]
-                return [''] * len(val)
+        ratios_list = ratios_display.index.tolist()
+        mid_point = len(ratios_list) // 2
+        ratios_part1 = ratios_display.iloc[:mid_point]
+        ratios_part2 = ratios_display.iloc[mid_point:]
+        
+        # Hàm styling (GIỮ NGUYÊN)
+        def color_ratios(val):
+            """Ánh xạ màu dựa trên tên chỉ số và giá trị (tạm thời để hiển thị đẹp)"""
+            # Chỉ số Thanh khoản (X7, X8) - Green/Yellow
+            if "Thanh toán" in val.name and val.values[0] < 1.0: return ['background-color: #ffcccc' for _ in val] # Dưới 1: Báo động đỏ
+            if "Thanh toán" in val.name and val.values[0] > 1.5: return ['background-color: #ccffcc' for _ in val] # Trên 1.5: Tốt
+            # Chỉ số Nợ (X5, X6) - Red/Green
+            if "Tỷ lệ Nợ/" in val.name and val.values[0] > 1.0: return ['background-color: #ffcccc' for _ in val] # Trên 1: Rủi ro cao
+            if "Tỷ lệ Nợ/" in val.name and val.values[0] < 0.5: return ['background-color: #ccffcc' for _ in val] # Dưới 0.5: Tốt
+            # Chỉ số Sinh lời (X1, X2, X3, X4) - Green/Yellow
+            if "Lợi nhuận" in val.name or "ROA" in val.name or "ROE" in val.name:
+                if val.values[0] <= 0: return ['background-color: #ffcccc' for _ in val]
+                if val.values[0] > 0.1: return ['background-color: #ccffcc' for _ in val]
+            return [''] * len(val)
 
-            st.dataframe(
-                ratios_display.T.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
+        with pd_col_1:
+             st.markdown("##### **Chỉ số (Phần 1/2)**")
+             st.dataframe(
+                ratios_part1.T.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
                 use_container_width=True
             )
-            
-        with col_pd:
+
+        with pd_col_2:
+            st.markdown("##### **Chỉ số (Phần 2/2)**")
+            st.dataframe(
+                ratios_part2.T.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
+                use_container_width=True
+            )
+        
+        with pd_col_pd:
             pd_value = f"{probs[0]:.2%}" if pd.notna(probs) else "N/A"
             pd_delta = "⬆️ Rủi ro cao" if pd.notna(preds) and preds[0] == 1 else "⬇️ Rủi ro thấp"
             
@@ -593,7 +640,8 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 # Đảo ngược màu sắc delta cho PD: Rủi ro cao là màu đỏ (inverse), rủi ro thấp là màu xanh (normal)
                 delta_color=("inverse" if pd.notna(preds) and preds[0] == 1 else "normal")
             )
-            
+        # ------------------------------------------------------------------------------------------------
+
         st.divider()
 
         # Khu vực Phân tích AI
@@ -621,10 +669,10 @@ elif choice == 'Sử dụng mô hình để dự báo':
                     
                     if "KHÔNG CHO VAY" in ai_result.upper():
                         st.error("🚨 **KHUYẾN NGHỊ CUỐI CÙNG: KHÔNG CHO VAY**")
-                        st.balloons() # Thêm hiệu ứng chúc mừng (ngược)
+                        st.snow() 
                     elif "CHO VAY" in ai_result.upper():
                         st.success("✅ **KHUYẾN NGHỊ CUỐI CÙNG: CHO VAY**")
-                        st.balloons() # Thêm hiệu ứng chúc mừng
+                        st.balloons() 
                     else:
                         st.info("💡 **KHUYẾN NGHỊ CUỐI CÙNG**")
                         
