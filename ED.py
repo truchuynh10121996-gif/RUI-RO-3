@@ -1,4 +1,4 @@
-# app_upgraded_i18n.py — Streamlit PD + Phân tích Gemini (Giao diện Tên Tiếng Việt)
+# app_upgraded_i18n_pro_design.py — Streamlit PD + Phân tích Gemini (Giao diện Tên Tiếng Việt - Nâng cấp Thẩm mỹ)
 
 # =========================
 # THƯ VIỆN BẮT BUỘC VÀ BỔ SUNG
@@ -52,20 +52,79 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh nhẹ
+# Thêm CSS tùy chỉnh cho MÀU SẮC, PHÔNG CHỮ, HIỆU ỨNG ĐỘNG
 st.markdown("""
 <style>
-/* Tăng độ đậm tiêu đề chính */
-h1 {
-    font-weight: 700;
-    color: #1E90FF; /* Màu xanh dương hiện đại */
+/* Ẩn menu và footer mặc định */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Thiết lập font chữ và màu nền tổng thể */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-/* Thẻ chính metrics */
+
+/* Tiêu đề chính (Header) - Màu xanh đậm chuyên nghiệp + Hiệu ứng lượn sóng nhẹ (animation) */
+h1 {
+    font-weight: 800 !important;
+    color: #004c99; /* Xanh Navy Đậm */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: wave 2s infinite;
+}
+@keyframes wave {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+h3 {
+    color: #1a75ff; /* Xanh tươi hơn */
+    border-bottom: 2px solid #e0f0ff;
+    padding-bottom: 5px;
+}
+
+/* Thẻ chính metrics - Thiết kế box hiện đại */
 div[data-testid="metric-container"] {
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid #1a75ff; /* Border nổi bật */
+    border-radius: 12px;
     padding: 10px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.15); /* Shadow nổi */
+    background-color: #f7f9fc; /* Nền xám nhạt */
+}
+/* Màu chữ metric */
+div[data-testid="stMetricValue"] {
+    color: #004c99; 
+    font-size: 1.8rem;
+}
+/* Màu chữ delta (rủi ro cao - đỏ, rủi ro thấp - xanh) */
+div[data-testid="stMetricDelta"] svg {
+    fill: #ff4b4b; /* Đảm bảo màu đỏ nổi bật */
+}
+div[data-testid="stMetricDelta"] {
+    color: #ff4b4b !important;
+}
+
+/* Sidebar - Làm nổi bật phần upload file */
+[data-testid="stSidebar"] {
+    background-color: #e0f0ff; /* Xanh nhạt cho sidebar */
+}
+div[data-testid="stFileUploader"] {
+    border: 2px dashed #004c99;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+/* Nút bấm Phân tích AI - Hiệu ứng nhấn */
+button[kind="primary"] {
+    background-color: #1a75ff;
+    border-color: #1a75ff;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+button[kind="primary"]:hover {
+    background-color: #004c99;
+    border-color: #004c99;
+}
+button[kind="primary"]:active {
+    transform: scale(0.98);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -256,14 +315,7 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 # =========================
 np.random.seed(0)
 
-# Ẩn menu và footer mặc định của Streamlit (Tăng tính chuyên nghiệp)
-hide_streamlit_style = """
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# Ẩn menu và footer mặc định của Streamlit (Đã chuyển lên CSS)
 
 
 st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
@@ -273,7 +325,7 @@ st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâ
 col_ai_status, col_date = st.columns([3, 1])
 with col_ai_status:
     ai_status = ("✅ sẵn sàng (cần 'GEMINI_API_KEY' trong Secrets)" if _GEMINI_OK else "⚠️ Thiếu thư viện google-genai.")
-    st.caption(f"🔎 Trạng thái Gemini AI: **{ai_status}**")
+    st.caption(f"🔎 Trạng thái Gemini AI: **<span style='color: #004c99; font-weight: bold;'>{ai_status}</span>**", unsafe_allow_html=True)
 with col_date:
     st.caption(f"📅 Cập nhật: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
 
@@ -405,8 +457,9 @@ elif choice == 'Xây dựng mô hình':
     # Biểu đồ Scatter Plot và Đường Hồi quy Logisitc (GIỮ NGUYÊN LOGIC)
     if col in df.columns:
         try:
+            # Dùng Streamlit.pyplot để đảm bảo tích hợp tốt hơn
             fig, ax = plt.subplots(figsize=(10, 6))
-            sns.scatterplot(data=df, x=col, y='default', alpha=0.6, ax=ax, hue='default', palette=['green', 'red'])
+            sns.scatterplot(data=df, x=col, y='default', alpha=0.6, ax=ax, hue='default', palette=['#1a75ff', '#ff4b4b']) # Dùng màu sắc theme
             
             # Vẽ đường logistic regression theo 1 biến
             x_range = np.linspace(df[col].min(), df[col].max(), 100).reshape(-1, 1)
@@ -416,7 +469,7 @@ elif choice == 'Xây dựng mô hình':
             lr_temp.fit(X_temp, y_temp)
             x_test = pd.DataFrame({col: x_range[:, 0]})
             y_curve = lr_temp.predict_proba(x_test)[:, 1]
-            ax.plot(x_range, y_curve, color='blue', linewidth=3, label='Đường LogReg')
+            ax.plot(x_range, y_curve, color='#004c99', linewidth=3, label='Đường LogReg') # Màu xanh đậm
             
             ax.set_title(f'Quan hệ giữa {col} và Xác suất Vỡ nợ', fontsize=14)
             ax.set_ylabel('Xác suất default (1: Default)', fontsize=12)
@@ -437,9 +490,10 @@ elif choice == 'Xây dựng mô hình':
     with col_cm:
         st.markdown("##### Ma trận Nhầm lẫn (Test Set)")
         cm = confusion_matrix(y_test, y_pred_out)
+        # Sử dụng cmap màu xanh đậm hơn để đồng bộ với theme
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Default (0)', 'Default (1)'])
         fig2, ax = plt.subplots(figsize=(6, 6))
-        disp.plot(ax=ax, cmap=plt.cm.Blues)
+        disp.plot(ax=ax, cmap=plt.cm.get_cmap('Blues', 8)) 
         st.pyplot(fig2)
         plt.close(fig2)
         
@@ -450,7 +504,12 @@ elif choice == 'Xây dựng mô hình':
             "Train Set": [metrics_in['accuracy_in'], metrics_in['precision_in'], metrics_in['recall_in'], metrics_in['f1_in'], metrics_in['auc_in']],
             "Test Set": [metrics_out['accuracy_out'], metrics_out['precision_out'], metrics_out['recall_out'], metrics_out['f1_out'], metrics_out['auc_out']],
         }).set_index("Metric")
-        st.dataframe(dt.style.format("{:.4f}"))
+        # Thêm styling để làm nổi bật kết quả tốt nhất
+        def highlight_max(s):
+            is_max = s == s.max()
+            return ['background-color: #e0f0ff' if v else '' for v in is_max]
+
+        st.dataframe(dt.style.format("{:.4f}").apply(highlight_max, axis=1), use_container_width=True)
 
 elif choice == 'Sử dụng mô hình để dự báo':
     # Trang này được hiển thị mặc định khi index=2
@@ -466,7 +525,9 @@ elif choice == 'Sử dụng mô hình để dự báo':
     if up_xlsx is not None:
         # Tính X1..X14 từ 3 sheet (GIỮ NGUYÊN)
         try:
-            ratios_df = compute_ratios_from_three_sheets(up_xlsx)
+            # Hiển thị thanh tiến trình giả lập (thêm hiệu ứng động)
+            with st.spinner('Đang đọc và xử lý dữ liệu tài chính...'):
+                ratios_df = compute_ratios_from_three_sheets(up_xlsx)
             
             # Tách riêng 14 cột tiếng Việt (hiển thị) và 14 cột tiếng Anh (dự báo)
             ratios_display = ratios_df[COMPUTED_COLS].T.rename(columns={0: 'Giá trị'})
@@ -501,8 +562,25 @@ elif choice == 'Sử dụng mô hình để dự báo':
         col_ratios, col_pd = st.columns([3, 1])
         
         with col_ratios:
-            # Hiển thị bảng chỉ số tiếng Việt
-            st.dataframe(ratios_display.style.format("{:.4f}"), use_container_width=True)
+            # Hiển thị bảng chỉ số tiếng Việt - Thêm màu cho các chỉ số quan trọng (Thanh khoản, Nợ)
+            def color_ratios(val):
+                """Ánh xạ màu dựa trên tên chỉ số và giá trị (tạm thời để hiển thị đẹp)"""
+                # Chỉ số Thanh khoản (X7, X8) - Green/Yellow
+                if "Thanh toán" in val.name and val.values[0] < 1.0: return ['background-color: #ffcccc' for _ in val] # Dưới 1: Báo động đỏ
+                if "Thanh toán" in val.name and val.values[0] > 1.5: return ['background-color: #ccffcc' for _ in val] # Trên 1.5: Tốt
+                # Chỉ số Nợ (X5, X6) - Red/Green
+                if "Tỷ lệ Nợ/" in val.name and val.values[0] > 1.0: return ['background-color: #ffcccc' for _ in val] # Trên 1: Rủi ro cao
+                if "Tỷ lệ Nợ/" in val.name and val.values[0] < 0.5: return ['background-color: #ccffcc' for _ in val] # Dưới 0.5: Tốt
+                # Chỉ số Sinh lời (X1, X2, X3, X4) - Green/Yellow
+                if "Lợi nhuận" in val.name or "ROA" in val.name or "ROE" in val.name:
+                    if val.values[0] <= 0: return ['background-color: #ffcccc' for _ in val]
+                    if val.values[0] > 0.1: return ['background-color: #ccffcc' for _ in val]
+                return [''] * len(val)
+
+            st.dataframe(
+                ratios_display.T.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
+                use_container_width=True
+            )
             
         with col_pd:
             pd_value = f"{probs[0]:.2%}" if pd.notna(probs) else "N/A"
@@ -512,6 +590,7 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 label="**Xác suất Vỡ nợ (PD)**",
                 value=pd_value,
                 delta=pd_delta if pd.notna(probs) else None,
+                # Đảo ngược màu sắc delta cho PD: Rủi ro cao là màu đỏ (inverse), rủi ro thấp là màu xanh (normal)
                 delta_color=("inverse" if pd.notna(preds) and preds[0] == 1 else "normal")
             )
             
@@ -528,17 +607,27 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 api_key = st.secrets.get("GEMINI_API_KEY")
                 
                 if api_key:
-                    with st.spinner('Đang gửi dữ liệu và chờ Gemini phân tích...'):
-                        ai_result = get_ai_analysis(data_for_ai, api_key)
+                    # Thêm thanh tiến trình đẹp mắt
+                    progress_bar = st.progress(0, text="Đang gửi dữ liệu và chờ Gemini phân tích...")
+                    for percent_complete in range(100):
+                        import time
+                        time.sleep(0.01) # Giả lập thời gian xử lý
+                        progress_bar.progress(percent_complete + 1, text=f"Đang gửi dữ liệu và chờ Gemini phân tích... {percent_complete+1}%")
+                    
+                    ai_result = get_ai_analysis(data_for_ai, api_key)
+                    progress_bar.empty() # Xóa thanh tiến trình
+                    
+                    st.markdown("**Kết quả Phân tích Chi tiết từ Gemini AI:**")
                     
                     if "KHÔNG CHO VAY" in ai_result.upper():
                         st.error("🚨 **KHUYẾN NGHỊ CUỐI CÙNG: KHÔNG CHO VAY**")
+                        st.balloons() # Thêm hiệu ứng chúc mừng (ngược)
                     elif "CHO VAY" in ai_result.upper():
                         st.success("✅ **KHUYẾN NGHỊ CUỐI CÙNG: CHO VAY**")
+                        st.balloons() # Thêm hiệu ứng chúc mừng
                     else:
                         st.info("💡 **KHUYẾN NGHỊ CUỐI CÙNG**")
                         
-                    st.markdown("**Kết quả Phân tích Chi tiết từ Gemini AI:**")
                     st.info(ai_result)
                 else:
                     st.error("❌ **Lỗi Khóa API**: Không tìm thấy Khóa API. Vui lòng cấu hình Khóa **'GEMINI_API_KEY'** trong Streamlit Secrets.")
