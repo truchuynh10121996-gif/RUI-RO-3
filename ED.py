@@ -807,13 +807,18 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         x_labels = [f"X{i}" for i in range(1, 15)]
         x_values_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 15)]
 
+        # Hàm xử lý giá trị an toàn
+        def safe_float(v):
+            """Chuyển đổi giá trị thành float an toàn, xử lý NaN và Infinity"""
+            try:
+                if pd.isna(v) or np.isinf(v) or v is None:
+                    return 0.0
+                return float(v)
+            except (ValueError, TypeError):
+                return 0.0
+
         # Xử lý NaN và Infinity - thay thế bằng 0
-        x_values = []
-        for v in x_values_raw:
-            if pd.isna(v) or np.isinf(v):
-                x_values.append(0)
-            else:
-                x_values.append(v)
+        x_values = [safe_float(v) for v in x_values_raw]
 
         # Tạo màu dựa trên giá trị (màu đỏ cho giá trị âm hoặc thấp, màu xanh cho giá trị cao)
         colors = ['#E31E24' if v < 0 else '#FF6B6B' if v < 0.5 else '#4CAF50' for v in x_values]
@@ -825,7 +830,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                 color=colors,
                 line=dict(color='#C41E3A', width=1.5)
             ),
-            text=[f'{v:.2f}' for v in x_values],
+            text=[f'{safe_float(v):.2f}' for v in x_values],
             textposition='auto',
             textfont=dict(size=10, color='white', family='Arial Black'),
             hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
@@ -873,13 +878,17 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
             categories = ['Biên LN gộp<br>(X1)', 'Biên LNTT<br>(X2)', 'ROA<br>(X3)', 'ROE<br>(X4)']
             values_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 5)]
 
+            # Hàm xử lý giá trị an toàn
+            def safe_float_radar1(v):
+                try:
+                    if pd.isna(v) or np.isinf(v) or v is None:
+                        return 0.0
+                    return float(v)
+                except (ValueError, TypeError):
+                    return 0.0
+
             # Xử lý NaN và Infinity
-            values = []
-            for v in values_raw:
-                if pd.isna(v) or np.isinf(v):
-                    values.append(0)
-                else:
-                    values.append(v)
+            values = [safe_float_radar1(v) for v in values_raw]
 
             fig_radar1.add_trace(go.Scatterpolar(
                 r=values,
@@ -925,18 +934,22 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                           'TT nhanh<br>(X8)', 'Trả lãi<br>(X9)', 'Trả nợ<br>(X10)', 'Tiền/VCSH<br>(X11)']
             values2_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(5, 12)]
 
+            # Hàm xử lý giá trị an toàn
+            def safe_float_radar2(v):
+                try:
+                    if pd.isna(v) or np.isinf(v) or v is None:
+                        return 0.0
+                    return float(v)
+                except (ValueError, TypeError):
+                    return 0.0
+
             # Xử lý NaN và Infinity
-            values2 = []
-            for v in values2_raw:
-                if pd.isna(v) or np.isinf(v):
-                    values2.append(0)
-                else:
-                    values2.append(v)
+            values2 = [safe_float_radar2(v) for v in values2_raw]
 
             # Chuẩn hóa giá trị để hiển thị tốt hơn trên radar
             valid_values = [abs(v) for v in values2 if v != 0]
-            max_val = max(valid_values) if valid_values else 1
-            normalized_values = [v / max_val if max_val > 0 else 0 for v in values2]
+            max_val = max(valid_values) if valid_values else 1.0
+            normalized_values = [safe_float_radar2(v / max_val) if max_val > 0 else 0.0 for v in values2]
 
             fig_radar2.add_trace(go.Scatterpolar(
                 r=normalized_values,
@@ -981,13 +994,17 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         categories3 = ['Vòng quay HTK (X12)', 'Kỳ thu tiền (X13)', 'Hiệu suất TS (X14)']
         values3_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(12, 15)]
 
+        # Hàm xử lý giá trị an toàn
+        def safe_float_eff(v):
+            try:
+                if pd.isna(v) or np.isinf(v) or v is None:
+                    return 0.0
+                return float(v)
+            except (ValueError, TypeError):
+                return 0.0
+
         # Xử lý NaN và Infinity
-        values3 = []
-        for v in values3_raw:
-            if pd.isna(v) or np.isinf(v):
-                values3.append(0)
-            else:
-                values3.append(v)
+        values3 = [safe_float_eff(v) for v in values3_raw]
 
         fig_efficiency.add_trace(go.Bar(
             x=categories3,
@@ -996,7 +1013,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                 color=['#E31E24', '#FF3B3F', '#FF6B6B'],
                 line=dict(color='#C41E3A', width=1.5)
             ),
-            text=[f'{v:.2f}' for v in values3],
+            text=[f'{safe_float_eff(v):.2f}' for v in values3],
             textposition='auto',
             textfont=dict(size=12, color='white', family='Arial Black'),
             hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
