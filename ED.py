@@ -609,6 +609,90 @@ if choice == '🎯 Mục tiêu của mô hình':
     """)
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # Dashboard Summary với KPIs
+    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+    st.markdown("### 📊 Thống kê Tổng quan")
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    with col1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Tổng mẫu</div>
+            <div class="metric-value">{len(df)}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Tỷ lệ vỡ nợ</div>
+            <div class="metric-value">{(y.sum() / len(y) * 100):.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Accuracy</div>
+            <div class="metric-value">{metrics_out['Accuracy']:.3f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">AUC Score</div>
+            <div class="metric-value">{metrics_out['AUC']:.3f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">F1-Score</div>
+            <div class="metric-value">{metrics_out['F1-Score']:.3f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Giải thích chi tiết các chỉ số
+    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+    st.markdown("### 📖 Giải thích các chỉ số tài chính")
+
+    with st.expander("📊 Nhóm chỉ số Khả năng sinh lời (X1-X4)"):
+        st.markdown("""
+        - **X1 - Biên lợi nhuận gộp**: (Lợi nhuận gộp / Doanh thu) - Đo lường hiệu quả kinh doanh cốt lõi
+        - **X2 - Biên lợi nhuận trước thuế**: (LNTT / Doanh thu) - Đo lường khả năng sinh lời tổng thể
+        - **X3 - ROA**: (LNTT / Tài sản TB) - Hiệu quả sử dụng tài sản để sinh lời
+        - **X4 - ROE**: (LNTT / VCSH TB) - Lợi nhuận trên vốn chủ sở hữu
+        """)
+
+    with st.expander("💰 Nhóm chỉ số Cơ cấu nợ (X5-X6)"):
+        st.markdown("""
+        - **X5 - Tỷ lệ nợ/Tài sản**: Đo lường mức độ đòn bẩy tài chính
+        - **X6 - Tỷ lệ nợ/VCSH**: Phản ánh cơ cấu nguồn vốn và rủi ro tài chính
+        """)
+
+    with st.expander("🔄 Nhóm chỉ số Thanh khoản (X7-X11)"):
+        st.markdown("""
+        - **X7 - Thanh toán hiện hành**: (TSNH / Nợ NH) - Khả năng trả nợ ngắn hạn
+        - **X8 - Thanh toán nhanh**: ((TSNH - HTK) / Nợ NH) - Thanh khoản loại bỏ hàng tồn kho
+        - **X9 - Khả năng trả lãi**: (EBIT / Chi phí lãi vay)
+        - **X10 - Khả năng trả nợ gốc**: ((EBIT + Khấu hao) / (Lãi vay + Nợ DH đến hạn))
+        - **X11 - Tiền/VCSH**: Tỷ lệ tiền mặt trên vốn chủ
+        """)
+
+    with st.expander("⚙️ Nhóm chỉ số Hiệu quả hoạt động (X12-X14)"):
+        st.markdown("""
+        - **X12 - Vòng quay hàng tồn kho**: (Giá vốn / HTK TB) - Tốc độ luân chuyển hàng tồn
+        - **X13 - Kỳ thu tiền bình quân**: 365 / (Doanh thu / Phải thu TB) - Thời gian thu hồi công nợ
+        - **X14 - Hiệu suất tài sản**: (Doanh thu / Tài sản TB) - Hiệu quả sử dụng tài sản
+        """)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
     # Hiển thị hình ảnh minh họa
     col1, col2, col3 = st.columns(3)
     images = [("hinh2.jpg", col1), ("LogReg_1.png", col2), ("hinh3.png", col3)]
@@ -652,48 +736,141 @@ elif choice == '🔧 Xây dựng mô hình':
         st.markdown('<div class="custom-card">', unsafe_allow_html=True)
         st.markdown("#### Trực quan hóa mối quan hệ giữa biến và xác suất vỡ nợ")
 
-        col = st.selectbox('Chọn biến X muốn phân tích', [f'X_{i}' for i in range(1, 15)])
+        # Sub-tabs for different visualizations
+        viz_tab1, viz_tab2, viz_tab3 = st.tabs(["📊 Phân tích từng biến", "🔥 Correlation Heatmap", "📈 Distribution Plots"])
 
-        if col in df.columns:
-            try:
-                # Tạo biểu đồ với Plotly
-                fig = make_subplots(rows=1, cols=2, subplot_titles=('Scatter Plot', 'Logistic Regression Curve'))
+        with viz_tab1:
+            col = st.selectbox('Chọn biến X muốn phân tích', [f'X_{i}' for i in range(1, 15)])
 
-                # Scatter plot
-                colors = ['#00923F' if v == 0 else '#FFB81C' for v in df['default']]
-                fig.add_trace(
-                    go.Scatter(x=df[col], y=df['default'], mode='markers',
-                              marker=dict(color=colors, size=8, opacity=0.6),
-                              name='Data points'),
-                    row=1, col=1
+            if col in df.columns:
+                try:
+                    # Tạo biểu đồ với Plotly
+                    fig = make_subplots(rows=1, cols=2, subplot_titles=('Scatter Plot', 'Logistic Regression Curve'))
+
+                    # Scatter plot
+                    colors = ['#00923F' if v == 0 else '#FFB81C' for v in df['default']]
+                    fig.add_trace(
+                        go.Scatter(x=df[col], y=df['default'], mode='markers',
+                                  marker=dict(color=colors, size=8, opacity=0.6),
+                                  name='Data points'),
+                        row=1, col=1
+                    )
+
+                    # Logistic regression curve
+                    x_range = np.linspace(df[col].min(), df[col].max(), 100)
+                    X_temp = df[[col]].copy()
+                    y_temp = df['default']
+                    lr_temp = LogisticRegression(max_iter=1000)
+                    lr_temp.fit(X_temp, y_temp)
+                    x_test = pd.DataFrame({col: x_range})
+                    y_curve = lr_temp.predict_proba(x_test)[:, 1]
+
+                    fig.add_trace(
+                        go.Scatter(x=x_range, y=y_curve, mode='lines',
+                                  line=dict(color='#00923F', width=3),
+                                  name='Probability curve'),
+                        row=1, col=2
+                    )
+
+                    fig.update_layout(height=400, showlegend=True)
+                    fig.update_xaxes(title_text=col, row=1, col=1)
+                    fig.update_xaxes(title_text=col, row=1, col=2)
+                    fig.update_yaxes(title_text="Default", row=1, col=1)
+                    fig.update_yaxes(title_text="Probability", row=1, col=2)
+
+                    st.plotly_chart(fig, use_container_width=True)
+
+                except Exception as e:
+                    st.error(f"Lỗi khi vẽ biểu đồ: {e}")
+
+        with viz_tab2:
+            st.markdown("##### Ma trận tương quan giữa các chỉ số tài chính")
+
+            # Compute correlation matrix
+            corr_matrix = df[[f'X_{i}' for i in range(1, 15)]].corr()
+
+            # Create heatmap with Plotly
+            fig = go.Figure(data=go.Heatmap(
+                z=corr_matrix.values,
+                x=corr_matrix.columns,
+                y=corr_matrix.columns,
+                colorscale='RdYlGn',
+                zmid=0,
+                text=np.round(corr_matrix.values, 2),
+                texttemplate='%{text}',
+                textfont={"size": 10},
+                colorbar=dict(title="Correlation")
+            ))
+
+            fig.update_layout(
+                title='Correlation Heatmap - 14 Chỉ số Tài chính',
+                height=600,
+                xaxis_title='',
+                yaxis_title=''
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.info("💡 **Giải thích**: Màu xanh đậm = tương quan dương mạnh, Màu đỏ đậm = tương quan âm mạnh")
+
+        with viz_tab3:
+            st.markdown("##### Phân phối của các chỉ số tài chính")
+
+            # Select variables to plot
+            selected_vars = st.multiselect(
+                'Chọn các biến muốn xem phân phối (tối đa 6)',
+                [f'X_{i}' for i in range(1, 15)],
+                default=[f'X_{i}' for i in range(1, 7)]
+            )
+
+            if selected_vars:
+                # Create subplot grid
+                n_vars = len(selected_vars)
+                n_cols = 3
+                n_rows = (n_vars + n_cols - 1) // n_cols
+
+                fig = make_subplots(
+                    rows=n_rows,
+                    cols=n_cols,
+                    subplot_titles=selected_vars
                 )
 
-                # Logistic regression curve
-                x_range = np.linspace(df[col].min(), df[col].max(), 100)
-                X_temp = df[[col]].copy()
-                y_temp = df['default']
-                lr_temp = LogisticRegression(max_iter=1000)
-                lr_temp.fit(X_temp, y_temp)
-                x_test = pd.DataFrame({col: x_range})
-                y_curve = lr_temp.predict_proba(x_test)[:, 1]
+                for idx, var in enumerate(selected_vars):
+                    row = idx // n_cols + 1
+                    col = idx % n_cols + 1
 
-                fig.add_trace(
-                    go.Scatter(x=x_range, y=y_curve, mode='lines',
-                              line=dict(color='#00923F', width=3),
-                              name='Probability curve'),
-                    row=1, col=2
+                    # Histogram for non-default
+                    fig.add_trace(
+                        go.Histogram(
+                            x=df[df['default'] == 0][var],
+                            name='Non-Default',
+                            marker_color='#00923F',
+                            opacity=0.7,
+                            showlegend=(idx == 0)
+                        ),
+                        row=row, col=col
+                    )
+
+                    # Histogram for default
+                    fig.add_trace(
+                        go.Histogram(
+                            x=df[df['default'] == 1][var],
+                            name='Default',
+                            marker_color='#FFB81C',
+                            opacity=0.7,
+                            showlegend=(idx == 0)
+                        ),
+                        row=row, col=col
+                    )
+
+                fig.update_layout(
+                    height=300 * n_rows,
+                    showlegend=True,
+                    barmode='overlay'
                 )
-
-                fig.update_layout(height=400, showlegend=True)
-                fig.update_xaxes(title_text=col, row=1, col=1)
-                fig.update_xaxes(title_text=col, row=1, col=2)
-                fig.update_yaxes(title_text="Default", row=1, col=1)
-                fig.update_yaxes(title_text="Probability", row=1, col=2)
 
                 st.plotly_chart(fig, use_container_width=True)
 
-            except Exception as e:
-                st.error(f"Lỗi khi vẽ biểu đồ: {e}")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with tab3:
@@ -723,23 +900,64 @@ elif choice == '🔧 Xây dựng mô hình':
                 </div>
                 """, unsafe_allow_html=True)
 
-        # ROC Curve
-        st.markdown("##### 📉 ROC Curve")
-        fpr, tpr, _ = roc_curve(y_test, y_proba_out)
+        # ROC Curve và Feature Importance
+        col1, col2 = st.columns(2)
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines',
-                                name=f'ROC (AUC = {metrics_out["AUC"]:.3f})',
-                                line=dict(color='#00923F', width=3)))
-        fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines',
-                                name='Random',
-                                line=dict(color='gray', width=2, dash='dash')))
-        fig.update_layout(
-            xaxis_title='False Positive Rate',
-            yaxis_title='True Positive Rate',
-            height=400
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        with col1:
+            st.markdown("##### 📉 ROC Curve")
+            fpr, tpr, _ = roc_curve(y_test, y_proba_out)
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines',
+                                    name=f'ROC (AUC = {metrics_out["AUC"]:.3f})',
+                                    line=dict(color='#00923F', width=3)))
+            fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines',
+                                    name='Random',
+                                    line=dict(color='gray', width=2, dash='dash')))
+            fig.update_layout(
+                xaxis_title='False Positive Rate',
+                yaxis_title='True Positive Rate',
+                height=400
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            st.markdown("##### 📊 Feature Importance")
+
+            # Get feature importance from logistic regression coefficients
+            feature_names = [f"X_{i}" for i in range(1, 15)]
+            coefficients = model.coef_[0]
+
+            # Create dataframe for plotting
+            importance_df = pd.DataFrame({
+                'Feature': feature_names,
+                'Coefficient': coefficients,
+                'Abs_Coefficient': np.abs(coefficients)
+            }).sort_values('Abs_Coefficient', ascending=True)
+
+            # Create horizontal bar chart
+            fig = go.Figure()
+            colors = ['#FFB81C' if c < 0 else '#00923F' for c in importance_df['Coefficient']]
+
+            fig.add_trace(go.Bar(
+                y=importance_df['Feature'],
+                x=importance_df['Coefficient'],
+                orientation='h',
+                marker=dict(color=colors),
+                text=np.round(importance_df['Coefficient'], 3),
+                textposition='outside'
+            ))
+
+            fig.update_layout(
+                xaxis_title='Coefficient Value',
+                yaxis_title='Features',
+                height=400,
+                showlegend=False
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.info("💡 **Giải thích**: Xanh = tăng rủi ro vỡ nợ, Vàng = giảm rủi ro vỡ nợ")
+
         st.markdown('</div>', unsafe_allow_html=True)
 
     with tab4:
@@ -881,7 +1099,29 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         st.markdown("### 🤖 Phân tích AI & Đề xuất cho vay")
         st.markdown("Sử dụng **Gemini AI** để phân tích chuyên sâu và đưa ra khuyến nghị cho vay")
 
-        if st.button("🚀 Yêu cầu AI Phân tích", use_container_width=True):
+        col_btn1, col_btn2, col_btn3 = st.columns([2, 2, 1])
+
+        with col_btn1:
+            analyze_button = st.button("🚀 Yêu cầu AI Phân tích", use_container_width=True)
+
+        with col_btn2:
+            # Download data button
+            if 'probs' in locals() and len(ratios_df) > 0:
+                download_df = ratios_df.copy()
+                if 'probs' in locals():
+                    download_df['PD_Probability'] = probs[0]
+                    download_df['Prediction'] = "Vỡ nợ" if preds[0] == 1 else "An toàn"
+
+                csv = download_df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="📥 Tải xuống kết quả",
+                    data=csv,
+                    file_name=f"du_bao_pd_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+
+        if analyze_button:
             api_key = st.secrets.get("GEMINI_API_KEY")
 
             if api_key:
@@ -889,17 +1129,49 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                     ai_result = get_ai_analysis(data_for_ai, api_key)
 
                     st.markdown("#### 📋 Kết quả Phân tích từ Gemini AI")
+
+                    # Store in session state for persistence
+                    st.session_state['ai_analysis'] = ai_result
+
+                    # Display with better formatting
+                    formatted_result = ai_result.replace('\n', '<br>')
                     st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    <div style="background: white;
                                 padding: 2rem;
                                 border-radius: 15px;
                                 border-left: 5px solid #FFB81C;
-                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        {ai_result}
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                line-height: 1.8;
+                                font-size: 1.05rem;">
+                        {formatted_result}
                     </div>
                     """, unsafe_allow_html=True)
+
+                    # Download AI analysis
+                    st.download_button(
+                        label="📄 Tải xuống phân tích AI",
+                        data=ai_result.encode('utf-8'),
+                        file_name=f"phan_tich_ai_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                        mime="text/plain"
+                    )
             else:
                 st.error("❌ Lỗi: Không tìm thấy Khóa API. Vui lòng cấu hình **'GEMINI_API_KEY'** trong Streamlit Secrets.")
+
+        # Display previous analysis if exists
+        elif 'ai_analysis' in st.session_state:
+            st.markdown("#### 📋 Kết quả Phân tích từ Gemini AI (đã lưu)")
+            formatted_saved = st.session_state['ai_analysis'].replace('\n', '<br>')
+            st.markdown(f"""
+            <div style="background: white;
+                        padding: 2rem;
+                        border-radius: 15px;
+                        border-left: 5px solid #FFB81C;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        line-height: 1.8;
+                        font-size: 1.05rem;">
+                {formatted_saved}
+            </div>
+            """, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
