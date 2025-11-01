@@ -277,25 +277,25 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
 
     # ---- Tính toán các biến số tài chính (GIỮ NGUYÊN CÁCH TÍNH)
-    DTT_prev, DTT_cur     = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
+    DTT_prev, DTT_cur      = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
-    LNG_prev, LNG_cur     = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
+    LNG_prev, LNG_cur      = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
-    LV_prev, LV_cur       = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-    TTS_prev, TTS_cur       = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
-    VCSH_prev, VCSH_cur     = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
-    NPT_prev, NPT_cur       = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
-    TSNH_prev, TSNH_cur     = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
-    NNH_prev, NNH_cur       = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
-    HTK_prev, HTK_cur       = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
-    Tien_prev, Tien_cur     = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
-    KPT_prev, KPT_cur       = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
-    NDH_prev, NDH_cur       = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
+    LV_prev, LV_cur        = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
+    TTS_prev, TTS_cur        = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
+    VCSH_prev, VCSH_cur      = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
+    NPT_prev, NPT_cur        = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
+    TSNH_prev, TSNH_cur      = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
+    NNH_prev, NNH_cur        = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
+    HTK_prev, HTK_cur        = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
+    Tien_prev, Tien_cur      = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
+    KPT_prev, KPT_cur        = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
+    NDH_prev, NDH_cur        = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
-    if pd.notna(LV_cur):    LV_cur     = abs(LV_cur)
-    if pd.notna(KH_cur):    KH_cur     = abs(KH_cur)
+    if pd.notna(LV_cur):     LV_cur     = abs(LV_cur)
+    if pd.notna(KH_cur):     KH_cur     = abs(KH_cur)
 
     def avg(a, b):
         if pd.isna(a) and pd.isna(b): return np.nan
@@ -562,6 +562,7 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 ratios_df = compute_ratios_from_three_sheets(up_xlsx)
             
             # Tách riêng 14 cột tiếng Việt (hiển thị) và 14 cột tiếng Anh (dự báo)
+            # ratios_display là DataFrame 1 cột: Index (Tên chỉ số) | Giá trị
             ratios_display = ratios_df[COMPUTED_COLS].T.rename(columns={0: 'Giá trị'})
             ratios_predict = ratios_df[MODEL_COLS]
             
@@ -591,12 +592,13 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 st.warning(f"Không dự báo được PD: {e}")
         
         # ------------------------------------------------------------------------------------------------
-        # THAY ĐỔI 2: Chia bảng chỉ số X1-X14 thành 2 cột để hiển thị đẹp mắt hơn
+        # ĐIỀU CHỈNH CỦA CHUYÊN GIA PYTHON: Bỏ .T để hiển thị đúng Tên Biến | Con số
         # ------------------------------------------------------------------------------------------------
         pd_col_1, pd_col_2, pd_col_pd = st.columns([2, 2, 1]) # Chia làm 3 cột, 2 cột giữa hiển thị ratios, 1 cột cuối hiển thị PD
         
         ratios_list = ratios_display.index.tolist()
         mid_point = len(ratios_list) // 2
+        # ratios_display đã có cấu trúc đúng: Index (Tên biến) | Giá trị (Con số)
         ratios_part1 = ratios_display.iloc[:mid_point]
         ratios_part2 = ratios_display.iloc[mid_point:]
         
@@ -616,16 +618,18 @@ elif choice == 'Sử dụng mô hình để dự báo':
             return [''] * len(val)
 
         with pd_col_1:
-             st.markdown("##### **Chỉ số (Phần 1/2)**")
+             # Đảm bảo hiển thị Tên biến | Giá trị
+             st.markdown("##### **Chỉ số Tài chính (1/2)**") 
              st.dataframe(
-                ratios_part1.T.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
-                use_container_width=True
-            )
+                 ratios_part1.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}), # <<< ĐÃ BỎ .T
+                 use_container_width=True
+             )
 
         with pd_col_2:
-            st.markdown("##### **Chỉ số (Phần 2/2)**")
+            # Đảm bảo hiển thị Tên biến | Giá trị
+            st.markdown("##### **Chỉ số Tài chính (2/2)**")
             st.dataframe(
-                ratios_part2.T.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
+                ratios_part2.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}), # <<< ĐÃ BỎ .T
                 use_container_width=True
             )
         
