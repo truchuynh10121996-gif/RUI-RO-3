@@ -285,25 +285,25 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
 
     # ---- Tính toán các biến số tài chính (GIỮ NGUYÊN CÁCH TÍNH)
-    DTT_prev, DTT_cur       = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
+    DTT_prev, DTT_cur      = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
-    LNG_prev, LNG_cur       = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
+    LNG_prev, LNG_cur      = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
-    LV_prev, LV_cur         = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-    TTS_prev, TTS_cur         = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
-    VCSH_prev, VCSH_cur       = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
-    NPT_prev, NPT_cur         = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
-    TSNH_prev, TSNH_cur       = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
-    NNH_prev, NNH_cur         = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
-    HTK_prev, HTK_cur         = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
-    Tien_prev, Tien_cur       = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
-    KPT_prev, KPT_cur         = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
-    NDH_prev, NDH_cur         = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
+    LV_prev, LV_cur        = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
+    TTS_prev, TTS_cur          = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
+    VCSH_prev, VCSH_cur      = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
+    NPT_prev, NPT_cur          = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
+    TSNH_prev, TSNH_cur      = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
+    NNH_prev, NNH_cur          = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
+    HTK_prev, HTK_cur          = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
+    Tien_prev, Tien_cur      = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
+    KPT_prev, KPT_cur          = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
+    NDH_prev, NDH_cur          = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
-    if pd.notna(LV_cur):       LV_cur      = abs(LV_cur)
-    if pd.notna(KH_cur):       KH_cur      = abs(KH_cur)
+    if pd.notna(LV_cur):      LV_cur     = abs(LV_cur)
+    if pd.notna(KH_cur):      KH_cur     = abs(KH_cur)
 
     def avg(a, b):
         if pd.isna(a) and pd.isna(b): return np.nan
@@ -341,7 +341,7 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     # Khởi tạo DataFrame với tên cột tiếng Việt mới
     ratios = pd.DataFrame([[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14]],
                           columns=COMPUTED_COLS)
-                          
+                            
     # Thêm cột X_1..X_14 ẩn để phục vụ việc dự báo mô hình
     ratios[[f"X_{i}" for i in range(1, 15)]] = ratios.values
     return ratios
@@ -352,24 +352,24 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 np.random.seed(0)
 
 # ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 1: Áp dụng dải banner CSS đã tạo (banner rộng hơn)
-# ------------------------------------------------------------------------------------------------
-st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
-st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
-st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâng cao")
-st.markdown('</div>', unsafe_allow_html=True)
+# THAY ĐỔI 2: CHUYỂN SANG DÙNG st.tabs NGANG
+# VỊ TRÍ MỚI: Đặt tabs ngay sau các hàm, trước tiêu đề chính.
 # ------------------------------------------------------------------------------------------------
 
-# --- THAY ĐỔI VỊ TRÍ (YÊU CẦU CHUYÊN GIA): Đặt tabs NGAY DƯỚI BANNER/TIÊU ĐỀ CHÍNH ---
-# Điều này đảm bảo các tab là yếu tố điều hướng đầu tiên sau tiêu đề/banner.
-# ------------------------------------------------------------------------------------------------
-# CHUYỂN SANG DÙNG st.tabs NGANG
 # Định nghĩa các Tabs
 tab_predict, tab_build, tab_goal = st.tabs([
     "🚀 Sử dụng mô hình để dự báo", 
     "🛠️ Xây dựng mô hình", 
     "🎯 Mục tiêu của mô hình"
 ])
+
+# ------------------------------------------------------------------------------------------------
+# THAY ĐỔI 1: Áp dụng dải banner CSS đã tạo (banner rộng hơn) - VỊ TRÍ MỚI: Nằm sau tabs
+# ------------------------------------------------------------------------------------------------
+st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
+st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
+st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâng cao")
+st.markdown('</div>', unsafe_allow_html=True)
 # ------------------------------------------------------------------------------------------------
 
 # Hiển thị trạng thái thư viện AI (Sử dụng cột để bố trí đẹp hơn)
@@ -396,7 +396,6 @@ if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
 
-
 # --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
     st.sidebar.info("💡 Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14) để xây dựng mô hình.")
@@ -422,7 +421,7 @@ if df is None:
 
 # Kiểm tra cột cần thiết
 required_cols = ['default'] + MODEL_COLS
-missing = [c for c in required_cols if c not in df.columns]
+missing = [c for c c in required_cols if c not in df.columns]
 if missing:
     st.error(f"❌ Thiếu cột: **{missing}**. Vui lòng kiểm tra lại file CSV huấn luyện.")
     st.stop()
@@ -467,7 +466,7 @@ with tab_goal:
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        #  # Thay thế 3 hình ảnh
+        # # Thay thế 3 hình ảnh
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 # Dùng placeholder image nếu không tìm thấy file
