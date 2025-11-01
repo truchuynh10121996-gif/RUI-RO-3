@@ -1,4 +1,4 @@
-# app.py — Streamlit PD + Phân tích Gemini (CẬP NHẬT GIAO DIỆN)
+# app.py — Streamlit PD + Phân tích Gemini (CẬP NHẬT VỊ TRÍ & MÀU SẮC)
 
 # =========================
 # THƯ VIỆN BẮT BUỘC VÀ BỔ SUNG
@@ -43,7 +43,7 @@ except Exception:
 MODEL_NAME = "gemini-2.5-flash" 
 
 # =========================
-# HÀM GỌI GEMINI API
+# HÀM GỌI GEMINI API (GIỮ NGUYÊN)
 # =========================
 
 def get_ai_analysis(data_payload: dict, api_key: str) -> str:
@@ -81,7 +81,7 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
 
 
 # =========================
-# TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT)
+# TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) (GIỮ NGUYÊN HÀM)
 # =========================
 
 # Alias các dòng quan trọng trong từng sheet
@@ -120,12 +120,11 @@ def _pick_year_cols(df: pd.DataFrame):
     if numeric_years:
         numeric_years.sort(key=lambda x: x[0])
         return numeric_years[-2][1], numeric_years[-1][1]
-    # fallback: 2 cột cuối
     cols = df.columns[-2:]
     return cols[0], cols[1]
 
 def _get_row_vals(df: pd.DataFrame, aliases: list[str]):
-    """Tìm dòng theo alias (contains, không phân biệt hoa/thường). Trả về (prev, cur) theo 2 cột năm gần nhất."""
+    """Tìm dòng theo alias. Trả về (prev, cur) theo 2 cột năm gần nhất."""
     label_col = df.columns[0]
     prev_col, cur_col = _pick_year_cols(df)
     mask = False
@@ -146,7 +145,6 @@ def _get_row_vals(df: pd.DataFrame, aliases: list[str]):
 
 def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     """Đọc 3 sheet CDKT/BCTN/LCTT và tính X1..X14 theo yêu cầu."""
-    # Đọc 3 sheet; cần openpyxl trong requirements
     bs = pd.read_excel(xlsx_file, sheet_name="CDKT", engine="openpyxl")
     is_ = pd.read_excel(xlsx_file, sheet_name="BCTN", engine="openpyxl")
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
@@ -219,95 +217,120 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     return ratios
 
 # =========================
-# UI & TRAIN MODEL
+# UI & TRAIN MODEL (CẬP NHẬT)
 # =========================
 
-# --- LOGIC CSS VÀ LOGO (YÊU CẦU 2 & 3) ---
+# --- LOGIC CSS VÀ LOGO (YÊU CẦU 2 & 3 - ĐÃ THÊM YÊU CẦU TRƯỚC) ---
 
-# Thêm logo và thiết lập CSS cho giao diện đỏ bọc đô (Bordeaux)
-AGRIBANK_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Agribank_logo.svg/1024px-Agribank_logo.svg.png" # URL logo chuẩn
-BORDEAUX_RED = "#800000" # Mã màu đỏ bọc đô
+# Đỏ Bordeaux tươi hơn
+BRIGHT_BORDEAUX = "#A50000" 
+AGRIBANK_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Agribank_logo.svg/1024px-Agribank_logo.svg.png" 
 
 st.markdown(
     f"""
     <style>
-        /* 3. Logo Agribank */
+        /* Logo Agribank (Giữ nguyên vị trí) */
         [data-testid="stSidebar"] {{
-            padding-top: 50px; /* Tạo khoảng trống cho logo */
+            padding-top: 50px; 
         }}
         .logo-img {{
             position: fixed;
             top: 10px;
             left: 20px;
-            width: 100px; /* Kích thước logo */
+            width: 100px; 
             height: auto;
             z-index: 1000;
         }}
         
-        /* 2. Phối màu Nền Trắng - Đỏ Bordeaux */
-        /* Màu chữ tiêu đề Streamlit */
-        .st-emotion-cache-1wivap2 {{ /* Streamlit Title */
-            color: {BORDEAUX_RED} !important;
+        /* Phối màu Nền Trắng - Đỏ Bordeaux Tươi */
+        .st-emotion-cache-1wivap2 {{
+            color: {BRIGHT_BORDEAUX} !important;
         }}
-        /* Màu nền Sidebar và Header: Giữ nguyên (Streamlit Default/Theming) hoặc có thể đổi */
-        /* Đổi màu tiêu đề h2 và h3 sang Đỏ Bordeaux */
         h1, h2, h3, h4, h5, h6 {{
-            color: {BORDEAUX_RED} !important;
+            color: {BRIGHT_BORDEAUX} !important;
         }}
-        /* Đổi màu nút bấm sang Đỏ Bordeaux */
+        /* Đổi màu nút bấm */
         div.stButton > button:first-child {{
-            background-color: {BORDEAUX_RED};
+            background-color: {BRIGHT_BORDEAUX};
             color: white;
             border-radius: 5px;
-            border-color: {BORDEAUX_RED};
+            border-color: {BRIGHT_BORDEAUX};
         }}
         div.stButton > button:hover {{
-            background-color: #660000; /* Màu đậm hơn khi hover */
+            background-color: #7A0000; 
             color: white;
-            border-color: #660000;
+            border-color: #7A0000;
+        }}
+        /* Màu nền cho st.info để nổi bật */
+        .st-emotion-cache-13l3763 {{
+            background-color: #FFF0F0; 
+            border-left: 5px solid {BRIGHT_BORDEAUX};
         }}
     </style>
     <img src="{AGRIBANK_LOGO_URL}" class="logo-img">
     """,
     unsafe_allow_html=True
 )
-# END OF LOGIC CSS
 
+# --- KHỞI TẠO STATE ---
+# Dùng session_state để lưu trữ model và df giữa các lần chuyển menu
+if 'df' not in st.session_state:
+    st.session_state.df = None
+if 'model' not in st.session_state:
+    st.session_state.model = None
+if 'X_cols' not in st.session_state:
+    st.session_state.X_cols = None
 
 np.random.seed(0)
-st.title("DỰ BÁO THAM SỐ PD")
-# 1. ẨN PHẦN DỰ BÁO VỠ NỢ/TẢI CSV BAN ĐẦU
-# st.write("## Dự báo xác suất vỡ nợ của khách hàng_PD") # ẨN
-# --- Phần tải CSV Huấn luyện cũng sẽ được ẩn nếu người dùng chọn mục dự báo
-
-# Hiển thị trạng thái thư viện AI
+st.title("HỆ THỐNG PHÂN TÍCH TÍN DỤNG DOANH NGHIỆP")
 st.caption("🔎 Trạng thái Gemini: " + ("✅ sẵn sàng (cần 'GEMINI_API_KEY' trong Secrets)" if _GEMINI_OK else "⚠️ Thiếu thư viện google-genai."))
 
-# --- Logic tải file CSV Huấn luyện (Chỉ hiện khi chưa chọn mục dự báo) ---
-df = None
 menu = ["Mục tiêu của mô hình", "Xây dựng mô hình", "Sử dụng mô hình để dự báo"]
 choice = st.sidebar.selectbox('Danh mục tính năng', menu)
 
-if choice != 'Sử dụng mô hình để dự báo':
-    # Hiển thị phần huấn luyện chỉ khi KHÔNG chọn mục dự báo
-    st.write("## 1. Huấn luyện Mô hình PD")
-    st.markdown("**(Phần này dùng để tải dữ liệu và huấn luyện mô hình)**")
-    
-    try:
-        df = pd.read_csv('DATASET.csv', encoding='latin-1')
-    except Exception:
-        df = None
+# =======================================================
+# KHỐI 1: MỤC TIÊU CỦA MÔ HÌNH
+# =======================================================
+if choice == 'Mục tiêu của mô hình':    
+    st.subheader("Mục tiêu của mô hình")
+    st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số X1–X14.")
+    # ảnh minh họa (có thể không tồn tại)
+    for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
+        try:
+            st.image(img)
+        except Exception:
+            st.warning(f"Không tìm thấy {img}")
 
+# =======================================================
+# KHỐI 2: XÂY DỰNG MÔ HÌNH (Bao gồm tải CSV và dự báo PD)
+# =======================================================
+elif choice == 'Xây dựng mô hình':
+    st.subheader("1. Huấn luyện Mô hình PD và Phân tích Dữ liệu")
+    st.markdown("**(Dự báo xác suất vỡ nợ của khách hàng_PD)**") # Chuyển đoạn này vào đây
+
+    # --- Tải file CSV huấn luyện ---
+    st.write("##### A. Tải dữ liệu huấn luyện")
+    
+    # Logic tải/load default CSV
+    df_default = None
+    try:
+        df_default = pd.read_csv('DATASET.csv', encoding='latin-1')
+    except Exception:
+        pass # Bỏ qua nếu không tìm thấy file default
+        
     uploaded_file = st.file_uploader("Tải CSV dữ liệu huấn luyện", type=['csv'])
+    
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file, encoding='latin-1')
+        st.session_state.df = pd.read_csv(uploaded_file, encoding='latin-1')
+    elif st.session_state.df is None and df_default is not None:
+        st.session_state.df = df_default # Load default nếu chưa có gì
+        
+    df = st.session_state.df 
 
     if df is None:
-        st.info("Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14).")
+        st.info("Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14) để tiếp tục.")
         st.stop()
 
-# --- Tiếp tục logic huấn luyện/kiểm tra nếu có df ---
-if df is not None:
     # Kiểm tra cột cần thiết
     required_cols = ['default'] + [f"X_{i}" for i in range(1, 15)]
     missing = [c for c in required_cols if c not in df.columns]
@@ -315,17 +338,25 @@ if df is not None:
         st.error(f"Thiếu cột: {missing}")
         st.stop()
     
+    # --- Huấn luyện Model ---
+    st.write("##### B. Huấn luyện Mô hình (Logistic Regression)")
+    
     # Train model
     X = df.drop(columns=['default'])
     y = df['default'].astype(int)
+    st.session_state.X_cols = X.columns 
+    
+    with st.spinner('Đang huấn luyện mô hình...'):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
+        model = LogisticRegression(random_state=42, max_iter=1000, class_weight="balanced", solver="lbfgs")
+        model.fit(X_train, y_train)
+        st.session_state.model = model
+    
+    st.success("Huấn luyện mô hình thành công! Mô hình đã sẵn sàng cho mục 'Sử dụng mô hình để dự báo'.")
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-    model = LogisticRegression(random_state=42, max_iter=1000, class_weight="balanced", solver="lbfgs")
-    model.fit(X_train, y_train)
-
-    # Dự báo & đánh giá (Giữ lại để các bước sau dùng)
+    # Dự báo & đánh giá
     y_pred_in = model.predict(X_train)
     y_proba_in = model.predict_proba(X_train)[:, 1]
     y_pred_out = model.predict(X_test)
@@ -346,31 +377,11 @@ if df is not None:
         "auc_out": roc_auc_score(y_test, y_proba_out),
     }
 
-# --- END Logic tải/huấn luyện ---
-
-
-if choice == 'Mục tiêu của mô hình':    
-    st.subheader("Mục tiêu của mô hình")
-    st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số X1–X14.")
-    # ảnh minh họa (có thể không tồn tại)
-    for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
-        try:
-            st.image(img)
-        except Exception:
-            st.warning(f"Không tìm thấy {img}")
-
-elif choice == 'Xây dựng mô hình':
-    st.subheader("Xây dựng mô hình")
-    
-    if df is None:
-        st.warning("Vui lòng tải file CSV Huấn luyện ở mục 1 trước.")
-        st.stop()
-
-    st.write("##### 1) Hiển thị dữ liệu")
+    st.write("##### C. Phân tích Dữ liệu")
     st.dataframe(df.head(3))
-    st.dataframe(df.tail(3))  
+    st.write(df[[f"X_{i}" for i in range(1, 15)]].describe())
 
-    st.write("##### 2) Trực quan hóa dữ liệu")
+    st.write("##### D. Trực quan hóa dữ liệu")
     col = st.text_input('Nhập tên biến X muốn vẽ', value='X_1')
     if col in df.columns:
         try:
@@ -384,7 +395,7 @@ elif choice == 'Xây dựng mô hình':
             lr_temp.fit(X_temp, y_temp)
             x_test = pd.DataFrame({col: x_range})
             y_curve = lr_temp.predict_proba(x_test)[:, 1]
-            ax.plot(x_range, y_curve, color='red', linewidth=2)
+            ax.plot(x_range, y_curve, color=BRIGHT_BORDEAUX, linewidth=2)
             ax.set_ylabel('Xác suất default')
             ax.set_xlabel(col)
             st.pyplot(fig)
@@ -394,23 +405,35 @@ elif choice == 'Xây dựng mô hình':
     else:
         st.warning("Biến không tồn tại trong dữ liệu.")
 
-    st.write("##### 3) Kết quả đánh giá")
+    st.write("##### E. Kết quả đánh giá mô hình")
     dt = pd.DataFrame([metrics_in | metrics_out])
     st.dataframe(dt)
 
-    st.write("##### 4) Ma trận nhầm lẫn (test)")
+    st.write("##### F. Ma trận nhầm lẫn (Test set)")
     cm = confusion_matrix(y_test, y_pred_out)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Default', 'Default'])
     fig2, ax = plt.subplots()
-    disp.plot(ax=ax)
+    disp.plot(ax=ax, cmap='Reds')
     st.pyplot(fig2)
     plt.close()
 
+# =======================================================
+# KHỐI 3: SỬ DỤNG MÔ HÌNH ĐỂ DỰ BÁO (Chỉ còn tải file XLSX và gọi AI)
+# =======================================================
 elif choice == 'Sử dụng mô hình để dự báo':
-    st.subheader("Sử dụng mô hình để dự báo & phân tích AI (3 sheet)")
+    st.subheader("2. Phân tích Hồ sơ Khách hàng (Sử dụng Model & AI)")
     st.caption("File phải có đủ 3 sheet: **CDKT ; BCTN ; LCTT**")
+    
+    # Kiểm tra model
+    model = st.session_state.model
+    X_cols = st.session_state.X_cols
+    
+    if model is None:
+        st.error("⚠️ Vui lòng huấn luyện mô hình ở mục **'Xây dựng mô hình'** trước khi thực hiện dự báo.")
+        st.stop()
 
-    up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx**", type=["xlsx"], key="ho_so_dn")
+    up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx** (3 sheet: CDKT, BCTN, LCTT)", type=["xlsx"], key="ho_so_dn")
+    
     if up_xlsx is not None:
         # Tính X1..X14 từ 3 sheet
         try:
@@ -419,35 +442,35 @@ elif choice == 'Sử dụng mô hình để dự báo':
             st.error(f"Lỗi tính X1…X14: {e}")
             st.stop()
 
-        st.markdown("### Kết quả tính X1…X14")
+        st.markdown("### 2.1. Kết quả tính X1…X14")
         st.dataframe(ratios_df.style.format("{:.4f}"))
         
         # Tạo payload data cho AI
         data_for_ai = ratios_df.iloc[0].to_dict()
 
-        # (Tuỳ chọn) dự báo PD nếu mô hình đã huấn luyện đúng cấu trúc X_1..X_14
-        if 'model' in locals(): # Chỉ dự báo nếu mô hình đã được train thành công
-            if set(X.columns) == set(ratios_df.columns):
-                with st.expander("Xác suất vỡ nợ dự báo (PD)"):
-                    try:
-                        probs = model.predict_proba(ratios_df[X.columns])[:, 1]
-                        preds = (probs >= 0.5).astype(int)
-                        show = ratios_df.copy()
-                        show["pd"] = probs
-                        show["pred_default"] = preds
-                        st.dataframe(show.style.format({"pd": "{:.3f}"}))
-                        # Thêm PD vào payload cho AI
-                        data_for_ai['PD_Probability'] = probs[0]
-                        data_for_ai['PD_Prediction'] = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
-                    except Exception as e:
-                        st.warning(f"Không dự báo được PD: {e}")
-            else:
-                st.warning("Cấu trúc file dữ liệu Huấn luyện không khớp với cấu trúc chỉ số X1-X14.")
+        # Dự báo PD
+        if set(X_cols) == set(ratios_df.columns):
+            with st.expander("2.2. Xác suất vỡ nợ dự báo (PD)"):
+                try:
+                    probs = model.predict_proba(ratios_df[X_cols])[:, 1]
+                    preds = (probs >= 0.5).astype(int)
+                    
+                    show = ratios_df.copy()
+                    show["PD"] = probs
+                    show["Dự báo"] = np.where(preds == 1, "Vỡ nợ (Default)", "Không vỡ nợ (Non-Default)")
+                    
+                    st.dataframe(show.style.format({"PD": "{:.3f}"}))
+                    
+                    # Thêm PD vào payload cho AI
+                    data_for_ai['PD_Probability'] = probs[0]
+                    data_for_ai['PD_Prediction'] = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
+                except Exception as e:
+                    st.warning(f"Không dự báo được PD: {e}. Lỗi do cấu trúc dữ liệu không khớp.")
         else:
-            st.warning("Mô hình chưa được huấn luyện. Vui lòng quay lại mục 'Xây dựng mô hình' để tải dữ liệu và huấn luyện.")
+            st.warning("Cấu trúc chỉ số X1-X14 của file này không khớp với mô hình đã huấn luyện.")
             
         # Gemini Phân tích & khuyến nghị
-        st.markdown("### Phân tích AI & đề xuất CHO VAY/KHÔNG CHO VAY")
+        st.markdown("### 2.3. Phân tích AI & Đề xuất Tín dụng")
 
         if st.button("Yêu cầu AI Phân tích"):
             api_key = st.secrets.get("GEMINI_API_KEY")
