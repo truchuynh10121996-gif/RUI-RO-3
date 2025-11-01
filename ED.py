@@ -1,4 +1,9 @@
-# app.py — Streamlit PD + phân tích GPT (ĐÃ BỎ GPT/OPENAI)
+# app.py — Streamlit PD + Phân tích Gemini (CẬP NHẬT THƯ VIỆN)
+
+# =========================
+# THƯ VIỆN BẮT BUỘC VÀ BỔ SUNG
+# (Cần đảm bảo các gói này được cài đặt, ví dụ trong requirements.txt)
+# =========================
 from datetime import datetime
 import os
 import numpy as np
@@ -6,10 +11,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-# KHÔNG CẦN DÙNG NỮA VÌ ĐÃ BỎ OPENAI
-# MODEL_NAME = "gpt-4o-mini" 
-
+# Thư viện Machine Learning và Mô hình
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -21,40 +23,70 @@ from sklearn.metrics import (
     roc_auc_score,
     ConfusionMatrixDisplay,
 )
+# Các thư viện BỔ SUNG theo yêu cầu (nếu được sử dụng trong code sau này)
+# import xgboost as xgb
+# import graphviz
+# import statsmodels.api as sm
 
 # =========================
-# OPENAI SAFE LOADER - ĐÃ BỊ BỎ HOÀN TOÀN
+# THÊM THƯ VIỆN GOOGLE GEMINI VÀ OPENAI (CHO TƯƠNG THÍCH VỚI REQ CŨ)
 # =========================
-# try:
-#     from openai import OpenAI  # yêu cầu openai>=1.30
-#     _OPENAI_OK = True
-# except Exception:
-#     OpenAI = None
-#     _OPENAI_OK = False
+try:
+    from google import genai
+    from google.genai.errors import APIError
+    _GEMINI_OK = True
+except Exception:
+    genai = None
+    APIError = Exception
+    _GEMINI_OK = False
 
-# def get_openai_client():
-#     """
-#     Ưu tiên: st.secrets["OPENAI_API_KEY"] -> os.getenv -> nhập tạm ở sidebar (không lưu).
-#     Trả về (client, err). Nếu client=None => dùng err để hiển thị cảnh báo.
-#     """
-#     key = None
-#     try:
-#         key = st.secrets.get("OPENAI_API_KEY", None)
-#     except Exception:
-#         pass
-#     if not key:
-#         key = os.getenv("OPENAI_API_KEY")
-#     if not key:
-#         # cho nhập tạm (không lưu/commit)
-#         tmp = st.sidebar.text_input("🔐 OpenAI API Key (không lưu)", type="password")
-#         if tmp:
-#             key = tmp
+try:
+    from openai import OpenAI
+    _OPENAI_OK = True
+except Exception:
+    OpenAI = None
+    _OPENAI_OK = False
 
-#     if not _OPENAI_OK:
-#         return None, "Thiếu thư viện openai (cần openai>=1.30)."
-#     if not key:
-#         return None, "Thiếu OPENAI_API_KEY (đặt trong Secrets/ENV hoặc nhập tạm ở sidebar)."
-#     return OpenAI(api_key=key), None
+
+MODEL_NAME = "gemini-2.5-flash" # Model mạnh mẽ và hiệu quả cho phân tích văn bản
+
+# =========================
+# HÀM GỌI GEMINI API
+# =========================
+
+def get_ai_analysis(data_payload: dict, api_key: str) -> str:
+    """
+    Sử dụng Gemini API để phân tích chỉ số tài chính.
+    """
+    if not _GEMINI_OK:
+        return "Lỗi: Thiếu thư viện google-genai (cần cài đặt: pip install google-genai)."
+
+    client = genai.Client(api_key=api_key)
+
+    sys_prompt = (
+        "Bạn là chuyên gia phân tích tín dụng doanh nghiệp tại ngân hàng. "
+        "Phân tích toàn diện dựa trên 14 chỉ số tài chính (X1..X14). "
+        "Nêu rõ: (1) Khả năng sinh lời, (2) Thanh khoản, (3) Cơ cấu nợ, (4) Hiệu quả hoạt động. "
+        "Kết thúc bằng khuyến nghị in hoa: CHO VAY hoặc KHÔNG CHO VAY, kèm 2–3 điều kiện nếu CHO VAY. "
+        "Viết bằng tiếng Việt súc tích, chuyên nghiệp."
+    )
+    
+    user_prompt = "Bộ chỉ số X1..X14 cần phân tích:\n" + str(data_payload) + "\n\nHãy phân tích và đưa ra khuyến nghị."
+
+    try:
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=[
+                {"role": "user", "parts": [{"text": sys_prompt + "\n\n" + user_prompt}]}
+            ],
+            config={"system_instruction": sys_prompt}
+        )
+        return response.text
+    except APIError as e:
+        return f"Lỗi gọi API Gemini: {e}"
+    except Exception as e:
+        return f"Lỗi không xác định: {e}"
+
 
 # =========================
 # TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT)
@@ -201,10 +233,8 @@ np.random.seed(0)
 st.title("DỰ BÁO THAM SỐ PD")
 st.write("## Dự báo xác suất vỡ nợ của khách hàng_PD")
 
-# Đã loại bỏ phần hiển thị trạng thái OpenAI
-# _client_probe, _err_probe = get_openai_client()
-# st.caption("🔎 Trạng thái OpenAI: " + ("✅ sẵn sàng" if _client_probe else f"⚠️ {_err_probe}"))
-st.caption("🔎 Trạng thái phân tích: **Chức năng phân tích GPT đã bị loại bỏ theo yêu cầu.**")
+# Hiển thị trạng thái thư viện AI
+st.caption("🔎 Trạng thái Gemini: " + ("✅ sẵn sàng (cần 'GEMINI_API_KEY' trong Secrets)" if _GEMINI_OK else "⚠️ Thiếu thư viện google-genai."))
 
 # Load dữ liệu huấn luyện (CSV có default, X_1..X_14)
 try:
@@ -331,6 +361,9 @@ elif choice == 'Sử dụng mô hình để dự báo':
 
         st.markdown("### Kết quả tính X1…X14")
         st.dataframe(ratios_df.style.format("{:.4f}"))
+        
+        # Tạo payload data cho AI
+        data_for_ai = ratios_df.iloc[0].to_dict()
 
         # (Tuỳ chọn) dự báo PD nếu mô hình đã huấn luyện đúng cấu trúc X_1..X_14
         if set(X.columns) == set(ratios_df.columns):
@@ -345,42 +378,24 @@ elif choice == 'Sử dụng mô hình để dự báo':
                 except Exception as e:
                     st.warning(f"Không dự báo được PD: {e}")
 
-        # GPT phân tích & khuyến nghị - ĐÃ BỊ BỎ HOÀN TOÀN
-        st.markdown("### Phân tích GPT & đề xuất CHO VAY/KHÔNG CHO VAY")
-        st.warning("Chức năng phân tích GPT đã bị loại bỏ theo yêu cầu. Vui lòng tự phân tích dựa trên kết quả PD.")
-        # client, err = get_openai_client()
-        # if client is None:
-        #     st.warning(err + " — bỏ qua phân tích GPT.")
-        # else:
-        #     payload = ratios_df.iloc[0].to_dict()
-        #     # gợi ý rule-of-thumb
-        #     flags = []
-        #     if pd.notna(payload.get("X_5")) and payload["X_5"] > 0.8:
-        #         flags.append("Đòn bẩy cao (X5>0.8)")
-        #     if pd.notna(payload.get("X_7")) and payload["X_7"] < 1.0:
-        #         flags.append("Thanh khoản yếu (X7<1)")
-        #     if flags:
-        #         payload["ghi_chu"] = " ; ".join(flags)
+        # Gemini Phân tích & khuyến nghị - ĐOẠN CODE BẠN YÊU CẦU THÊM VÀO ĐÂY
+        st.markdown("### Phân tích AI & đề xuất CHO VAY/KHÔNG CHO VAY")
+        
+        # Thêm các chỉ số PD nếu đã tính được vào payload
+        if 'probs' in locals():
+            data_for_ai['PD_Probability'] = probs[0]
+            data_for_ai['PD_Prediction'] = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
 
-        #     sys_prompt = (
-        #         "Bạn là chuyên gia phân tích tín dụng doanh nghiệp tại ngân hàng. "
-        #         "Phân tích toàn diện dựa trên X1..X14. "
-        #         "Nêu rõ: (1) Khả năng sinh lời, (2) Thanh khoản, (3) Cơ cấu nợ, (4) Hiệu quả hoạt động. "
-        #         "Kết thúc bằng khuyến nghị in hoa: CHO VAY hoặc KHÔNG CHO VAY, kèm 2–3 điều kiện nếu CHO VAY."
-        #     )
-        #     user_prompt = "Bộ chỉ số:\n" + str(payload) + "\n\nViết súc tích, tiếng Việt, dùng gạch đầu dòng khi hợp lý."
+        if st.button("Yêu cầu AI Phân tích"):
+            api_key = st.secrets.get("GEMINI_API_KEY")
+            
+            if api_key:
+                with st.spinner('Đang gửi dữ liệu và chờ Gemini phân tích...'):
+                    ai_result = get_ai_analysis(data_for_ai, api_key)
+                    st.markdown("**Kết quả Phân tích từ Gemini AI:**")
+                    st.info(ai_result)
+            else:
+                st.error("Lỗi: Không tìm thấy Khóa API. Vui lòng cấu hình Khóa **'GEMINI_API_KEY'** trong Streamlit Secrets.")
 
-        #     with st.spinner("GPT đang phân tích..."):
-        #         try:
-        #             resp = client.chat.completions.create(
-        #                 model=MODEL_NAME,
-        #                 messages=[
-        #                     {"role": "system", "content": sys_prompt},
-        #                     {"role": "user", "content": user_prompt},
-        #                 ],
-        #             )
-        #             st.write(resp.choices[0].message.content)
-        #         except Exception as e:
-        #             st.error(f"Lỗi gọi GPT: {e}")
     else:
-        st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14 và nhận xác suất PD.")
+        st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
