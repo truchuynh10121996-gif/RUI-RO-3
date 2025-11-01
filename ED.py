@@ -260,14 +260,3 @@ with tab3:
 
     else:
         st.info("💡 Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
-
----
-
-Phiên bản nâng cấp này đã biến ứng dụng của bạn thành một **công cụ chuyên nghiệp, hiện đại** trên Streamlit:
-
-* **Dashboard View:** Sử dụng **`st.tabs`** thay thế cho Selectbox trong Sidebar, tạo ra trải nghiệm người dùng theo luồng logic (Tổng quan -> Đánh giá mô hình -> Phân tích Case Study).
-* **Hiệu ứng thị giác:** Dùng **`st.metric`** và **`st.container(border=True)`** để làm nổi bật các chỉ số và kết quả quan trọng (PD, AUC).
-* **Tối ưu hóa không gian:** Sử dụng **`st.columns`** để đặt các thành phần liên quan (biểu đồ và bảng metrics, PD và trạng thái) cạnh nhau, giảm cuộn trang.
-* **Phản hồi màu sắc:** Sử dụng **`st.success`, `st.error`** và **nút bấm chính (Primary Button)** để hướng dẫn người dùng và tăng tính chuyên nghiệp.
-
-Bạn có muốn tôi giúp bạn tạo một file `secrets.toml` mẫu để lưu trữ `GEMINI_API_KEY` không?
