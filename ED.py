@@ -352,7 +352,18 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 np.random.seed(0)
 
 # ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 1: Áp dụng dải banner CSS đã tạo (banner rộng hơn)
+# THAY ĐỔI VỊ TRÍ 1: CHUYỂN SANG DÙNG st.tabs NGANG (ĐẶT TRÊN TIÊU ĐỀ)
+# ------------------------------------------------------------------------------------------------
+
+# Định nghĩa các Tabs
+tab_predict, tab_build, tab_goal = st.tabs([
+    "🚀 Sử dụng mô hình để dự báo", 
+    "🛠️ Xây dựng mô hình", 
+    "🎯 Mục tiêu của mô hình"
+])
+
+# ------------------------------------------------------------------------------------------------
+# THAY ĐỔI VỊ TRÍ 2: Áp dụng dải banner CSS đã tạo (banner rộng hơn) - ĐẶT SAU TABS
 # ------------------------------------------------------------------------------------------------
 st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
 st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
@@ -383,17 +394,6 @@ uploaded_file = st.sidebar.file_uploader("📂 Tải CSV Dữ liệu Huấn luy�
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
-
-# ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 2: CHUYỂN SANG DÙNG st.tabs NGANG
-# ------------------------------------------------------------------------------------------------
-
-# Định nghĩa các Tabs
-tab_predict, tab_build, tab_goal = st.tabs([
-    "🚀 Sử dụng mô hình để dự báo", 
-    "🛠️ Xây dựng mô hình", 
-    "🎯 Mục tiêu của mô hình"
-])
 
 # --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
