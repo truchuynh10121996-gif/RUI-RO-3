@@ -351,17 +351,25 @@ def _get_row_vals(df: pd.DataFrame, aliases: list[str]):
 
     return to_num(row[prev_col]), to_num(row[cur_col])
 
+@st.cache_data
 def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
-    bs = pd.read_excel(xlsx_file, sheet_name="CDKT", engine="openpyxl")
-    is_ = pd.read_excel(xlsx_file, sheet_name="BCTN", engine="openpyxl")
-    cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
+    """Đọc 3 sheet CDKT/BCTN/LCTT và tính X1..X14 theo yêu cầu."""
+    try:
+        # Đọc 3 sheet
+        bs = pd.read_excel(xlsx_file, sheet_name="CDKT", engine="openpyxl")
+        is_ = pd.read_excel(xlsx_file, sheet_name="BCTN", engine="openpyxl")
+        cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
+    except Exception as e:
+        raise ValueError(f"Lỗi đọc file Excel: {e}. Kiểm tra file có đủ 3 sheet CDKT, BCTN, LCTT")
 
+    # ---- BCTN (Báo cáo thu nhập)
     DTT_prev, DTT_cur    = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
     LNG_prev, LNG_cur    = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
     LV_prev, LV_cur      = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
 
+    # ---- CDKT (Cân đối kế toán)
     TTS_prev, TTS_cur      = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
     VCSH_prev, VCSH_cur    = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
     NPT_prev, NPT_cur      = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
@@ -372,48 +380,91 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     KPT_prev, KPT_cur      = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
     NDH_prev, NDH_cur      = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
 
+    # ---- LCTT (Lưu chuyển tiền tệ)
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
-    if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
-    if pd.notna(LV_cur):    LV_cur    = abs(LV_cur)
-    if pd.notna(KH_cur):    KH_cur    = abs(KH_cur)
+    # Chuẩn hoá số âm (giá vốn, chi phí thường âm trong báo cáo)
+    if pd.notna(GVHB_cur): 
+        GVHB_cur = abs(GVHB_cur)
+    if pd.notna(LV_cur):
+        LV_cur = abs(LV_cur)
+    if pd.notna(KH_cur):
+        KH_cur = abs(KH_cur)
 
+    # Hàm tính trung bình
     def avg(a, b):
-        if pd.isna(a) and pd.isna(b): return np.nan
-        if pd.isna(a): return b
-        if pd.isna(b): return a
+        if pd.isna(a) and pd.isna(b): 
+            return np.nan
+        if pd.isna(a): 
+            return b
+        if pd.isna(b): 
+            return a
         return (a + b) / 2.0
     
+    # Tính trung bình đầu cuối kỳ
     TTS_avg  = avg(TTS_cur,  TTS_prev)
     VCSH_avg = avg(VCSH_cur, VCSH_prev)
     HTK_avg  = avg(HTK_cur,  HTK_prev)
     KPT_avg  = avg(KPT_cur,  KPT_prev)
 
+    # Tính EBIT
     EBIT_cur = (LNTT_cur + LV_cur) if (pd.notna(LNTT_cur) and pd.notna(LV_cur)) else np.nan
+    
+    # Nợ dài hạn đến hạn (nếu không có thì = 0)
     NDH_cur = 0.0 if pd.isna(NDH_cur) else NDH_cur
 
+    # Hàm chia an toàn
     def div(a, b):
-        return np.nan if (b is None or pd.isna(b) or b == 0) else a / b
+        if b is None or pd.isna(b) or b == 0:
+            return np.nan
+        if a is None or pd.isna(a):
+            return np.nan
+        return float(a) / float(b)
 
-    X1  = div(LNG_cur, DTT_cur)
-    X2  = div(LNTT_cur, DTT_cur)
-    X3  = div(LNTT_cur, TTS_avg)
-    X4  = div(LNTT_cur, VCSH_avg)
-    X5  = div(NPT_cur,  TTS_cur)
-    X6  = div(NPT_cur,  VCSH_cur)
-    X7  = div(TSNH_cur, NNH_cur)
-    X8  = div((TSNH_cur - HTK_cur) if pd.notna(TSNH_cur) and pd.notna(HTK_cur) else np.nan, NNH_cur)
-    X9  = div(EBIT_cur, LV_cur)
-    X10 = div((EBIT_cur + (KH_cur if pd.notna(KH_cur) else 0.0)),
-              (LV_cur + NDH_cur) if pd.notna(LV_cur) else np.nan)
-    X11 = div(Tien_cur, VCSH_cur)
-    X12 = div(GVHB_cur, HTK_avg)
+    # ==== TÍNH X1..X14 ====
+    X1  = div(LNG_cur, DTT_cur)                      # Biên LN gộp
+    X2  = div(LNTT_cur, DTT_cur)                     # Biên LNTT
+    X3  = div(LNTT_cur, TTS_avg)                     # ROA (trước thuế)
+    X4  = div(LNTT_cur, VCSH_avg)                    # ROE (trước thuế)
+    X5  = div(NPT_cur,  TTS_cur)                     # Nợ/Tài sản
+    X6  = div(NPT_cur,  VCSH_cur)                    # Nợ/VCSH
+    X7  = div(TSNH_cur, NNH_cur)                     # Thanh toán hiện hành
+    
+    # X8: Thanh toán nhanh
+    TSNH_tru_HTK = None
+    if pd.notna(TSNH_cur) and pd.notna(HTK_cur):
+        TSNH_tru_HTK = TSNH_cur - HTK_cur
+    X8  = div(TSNH_tru_HTK, NNH_cur)
+    
+    X9  = div(EBIT_cur, LV_cur)                      # Khả năng trả lãi
+    
+    # X10: Khả năng trả nợ gốc
+    tu_so_X10 = None
+    if pd.notna(EBIT_cur):
+        KH_val = KH_cur if pd.notna(KH_cur) else 0.0
+        tu_so_X10 = EBIT_cur + KH_val
+    
+    mau_so_X10 = None
+    if pd.notna(LV_cur):
+        mau_so_X10 = LV_cur + NDH_cur
+    
+    X10 = div(tu_so_X10, mau_so_X10)
+    
+    X11 = div(Tien_cur, VCSH_cur)                    # Tiền/VCSH
+    X12 = div(GVHB_cur, HTK_avg)                     # Vòng quay HTK
+    
+    # X13: Kỳ thu tiền BQ
     turnover = div(DTT_cur, KPT_avg)
     X13 = div(365.0, turnover) if pd.notna(turnover) and turnover != 0 else np.nan
-    X14 = div(DTT_cur, TTS_avg)
+    
+    X14 = div(DTT_cur, TTS_avg)                      # Hiệu suất sử dụng tài sản
 
-    ratios = pd.DataFrame([[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14]],
-                          columns=[f"X_{i}" for i in range(1, 15)])
+    # Tạo DataFrame kết quả
+    ratios = pd.DataFrame(
+        [[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14]],
+        columns=[f"X_{i}" for i in range(1, 15)]
+    )
+    
     return ratios
 
 # =========================
