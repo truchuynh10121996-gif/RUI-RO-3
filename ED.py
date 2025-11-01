@@ -805,7 +805,15 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         fig_bar = go.Figure()
 
         x_labels = [f"X{i}" for i in range(1, 15)]
-        x_values = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 15)]
+        x_values_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 15)]
+
+        # Xử lý NaN và Infinity - thay thế bằng 0
+        x_values = []
+        for v in x_values_raw:
+            if pd.isna(v) or np.isinf(v):
+                x_values.append(0)
+            else:
+                x_values.append(v)
 
         # Tạo màu dựa trên giá trị (màu đỏ cho giá trị âm hoặc thấp, màu xanh cho giá trị cao)
         colors = ['#E31E24' if v < 0 else '#FF6B6B' if v < 0.5 else '#4CAF50' for v in x_values]
@@ -863,7 +871,15 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
             fig_radar1 = go.Figure()
 
             categories = ['Biên LN gộp<br>(X1)', 'Biên LNTT<br>(X2)', 'ROA<br>(X3)', 'ROE<br>(X4)']
-            values = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 5)]
+            values_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(1, 5)]
+
+            # Xử lý NaN và Infinity
+            values = []
+            for v in values_raw:
+                if pd.isna(v) or np.isinf(v):
+                    values.append(0)
+                else:
+                    values.append(v)
 
             fig_radar1.add_trace(go.Scatterpolar(
                 r=values,
@@ -907,11 +923,20 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
 
             categories2 = ['Nợ/TS<br>(X5)', 'Nợ/VCSH<br>(X6)', 'TT hiện hành<br>(X7)',
                           'TT nhanh<br>(X8)', 'Trả lãi<br>(X9)', 'Trả nợ<br>(X10)', 'Tiền/VCSH<br>(X11)']
-            values2 = [ratios_df.iloc[0][f"X_{i}"] for i in range(5, 12)]
+            values2_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(5, 12)]
+
+            # Xử lý NaN và Infinity
+            values2 = []
+            for v in values2_raw:
+                if pd.isna(v) or np.isinf(v):
+                    values2.append(0)
+                else:
+                    values2.append(v)
 
             # Chuẩn hóa giá trị để hiển thị tốt hơn trên radar
-            max_val = max([abs(v) for v in values2]) if values2 else 1
-            normalized_values = [v / max_val if max_val > 0 else v for v in values2]
+            valid_values = [abs(v) for v in values2 if v != 0]
+            max_val = max(valid_values) if valid_values else 1
+            normalized_values = [v / max_val if max_val > 0 else 0 for v in values2]
 
             fig_radar2.add_trace(go.Scatterpolar(
                 r=normalized_values,
@@ -954,7 +979,15 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
         fig_efficiency = go.Figure()
 
         categories3 = ['Vòng quay HTK (X12)', 'Kỳ thu tiền (X13)', 'Hiệu suất TS (X14)']
-        values3 = [ratios_df.iloc[0][f"X_{i}"] for i in range(12, 15)]
+        values3_raw = [ratios_df.iloc[0][f"X_{i}"] for i in range(12, 15)]
+
+        # Xử lý NaN và Infinity
+        values3 = []
+        for v in values3_raw:
+            if pd.isna(v) or np.isinf(v):
+                values3.append(0)
+            else:
+                values3.append(v)
 
         fig_efficiency.add_trace(go.Bar(
             x=categories3,
