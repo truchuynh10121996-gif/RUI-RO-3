@@ -827,7 +827,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
             ),
             text=[f'{v:.2f}' for v in x_values],
             textposition='auto',
-            textfont=dict(size=10, color='white', family='Arial Black'),
+            textfont=dict(size=10, color='white'),
             hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
         ))
 
@@ -836,18 +836,18 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                 'text': 'Phân tích Chi tiết 14 Chỉ số Tài chính',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 18, 'color': '#E31E24', 'family': 'Arial Black'}
+                'font': {'size': 18, 'color': '#E31E24'}
             },
             xaxis=dict(
                 title='Chỉ số',
-                titlefont=dict(size=14, color='#333'),
+                title_font=dict(size=14, color='#333'),
                 tickfont=dict(size=12, color='#333'),
                 showgrid=True,
                 gridcolor='#f0f0f0'
             ),
             yaxis=dict(
                 title='Giá trị',
-                titlefont=dict(size=14, color='#333'),
+                title_font=dict(size=14, color='#333'),
                 tickfont=dict(size=12, color='#333'),
                 showgrid=True,
                 gridcolor='#f0f0f0'
@@ -998,7 +998,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
             ),
             text=[f'{v:.2f}' for v in values3],
             textposition='auto',
-            textfont=dict(size=12, color='white', family='Arial Black'),
+            textfont=dict(size=12, color='white'),
             hovertemplate='<b>%{x}</b><br>Giá trị: %{y:.4f}<extra></extra>'
         ))
 
@@ -1007,7 +1007,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
                 'text': 'Chỉ số Hiệu quả Hoạt động',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 16, 'color': '#E31E24', 'family': 'Arial Black'}
+                'font': {'size': 16, 'color': '#E31E24'}
             },
             xaxis=dict(
                 tickfont=dict(size=12, color='#333'),
@@ -1015,7 +1015,7 @@ elif choice == '🔮 Sử dụng mô hình để dự báo':
             ),
             yaxis=dict(
                 title='Giá trị',
-                titlefont=dict(size=14, color='#333'),
+                title_font=dict(size=14, color='#333'),
                 tickfont=dict(size=12, color='#333'),
                 showgrid=True,
                 gridcolor='#f0f0f0'
