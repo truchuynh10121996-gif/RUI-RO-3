@@ -47,7 +47,7 @@ MODEL_NAME = "gemini-2.5-flash"
 st.set_page_config(
     page_title="Credit Risk PD & Gemini Analysis",
     page_icon="🏛️",
-    layout="wide",
+    layout="wide", # <--- Giữ nguyên layout wide
     initial_sidebar_state="expanded"
 )
 
@@ -65,8 +65,8 @@ body {
 
 /* ------------------------------------------------------------------------------------------------
 | THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (Bao gồm cả Tiêu đề và Subtitle)
+| Đã đảm bảo container này sẽ chiếm toàn bộ chiều rộng (nhờ layout="wide" và không có max-width)
 ------------------------------------------------------------------------------------------------ */
-/* Container bao quanh tiêu đề chính (st.title) và tiêu đề phụ (st.write) */
 .banner-title-container {
     background: linear-gradient(90deg, #e0f0ff, #f7f9fc, #e0f0ff); /* Màu chuyển sắc nhẹ nhàng */
     padding: 20px 30px; /* Tăng padding để làm dải banner dày hơn */
@@ -152,6 +152,15 @@ button[kind="primary"]:hover {
 }
 button[kind="primary"]:active {
     transform: scale(0.98);
+}
+/* Style cho Tabs */
+.stTabs [data-testid="stVerticalBlock"] {
+    padding: 0;
+}
+.stTabs [data-testid="stHorizontalBlock"] {
+    background-color: #f0f8ff; /* Nền nhẹ cho thanh tab */
+    border-radius: 8px;
+    padding: 5px 0;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -261,6 +270,7 @@ def _get_row_vals(df: pd.DataFrame, aliases: list[str]):
 
     def to_num(x):
         try:
+            # Xóa dấu phẩy, khoảng trắng
             return float(str(x).replace(",", "").replace(" ", ""))
         except Exception:
             return np.nan
@@ -299,10 +309,10 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
         if pd.isna(a): return b
         if pd.isna(b): return a
         return (a + b) / 2.0
-    TTS_avg  = avg(TTS_cur,  TTS_prev)
+    TTS_avg    = avg(TTS_cur,   TTS_prev)
     VCSH_avg = avg(VCSH_cur, VCSH_prev)
-    HTK_avg  = avg(HTK_cur,  HTK_prev)
-    KPT_avg  = avg(KPT_cur,  KPT_prev)
+    HTK_avg    = avg(HTK_cur,   HTK_prev)
+    KPT_avg    = avg(KPT_cur,   KPT_prev)
 
     EBIT_cur = (LNTT_cur + LV_cur) if (pd.notna(LNTT_cur) and pd.notna(LV_cur)) else np.nan
     NDH_cur = 0.0 if pd.isna(NDH_cur) else NDH_cur
@@ -341,7 +351,7 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 np.random.seed(0)
 
 # ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 1 (Tiếp): Áp dụng dải banner CSS đã tạo
+# THAY ĐỔI 1: Áp dụng dải banner CSS đã tạo (banner rộng hơn)
 # ------------------------------------------------------------------------------------------------
 st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
 st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
@@ -367,33 +377,43 @@ try:
 except Exception:
     df = None
 
+# DI CHUYỂN UPLOADER VỀ ĐẦU SIDEBAR (Không còn selectbox)
 uploaded_file = st.sidebar.file_uploader("📂 Tải CSV Dữ liệu Huấn luyện", type=['csv'])
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
 
+# ------------------------------------------------------------------------------------------------
+# THAY ĐỔI 2: CHUYỂN SANG DÙNG st.tabs NGANG
+# ------------------------------------------------------------------------------------------------
+
+# Định nghĩa các Tabs
+tab_predict, tab_build, tab_goal = st.tabs([
+    "🚀 Sử dụng mô hình để dự báo", 
+    "🛠️ Xây dựng mô hình", 
+    "🎯 Mục tiêu của mô hình"
+])
+
 # --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
     st.sidebar.info("💡 Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14) để xây dựng mô hình.")
     
-    # Sử dụng logic mặc định để hiển thị trang dự báo ngay cả khi thiếu data, nhưng cảnh báo.
-    menu = ["Mục tiêu của mô hình", "Xây dựng mô hình", "Sử dụng mô hình để dự báo"]
-    choice = st.sidebar.selectbox('🚀 Danh mục Tính năng', menu, index=2) # <--- ĐIỀU CHỈNH CHÍNH
-    
-    if choice == 'Sử dụng mô hình để dự báo':
+    # Logic cho các tab khi thiếu data huấn luyện
+    with tab_predict:
         st.header("⚡ Dự báo PD & Phân tích AI cho Hồ sơ mới")
         st.warning("⚠️ **Không thể dự báo PD**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để xây dựng mô hình Logistic Regression.")
         up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx**", type=["xlsx"], key="ho_so_dn")
         if up_xlsx is None:
             st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14 và phân tích AI.")
-    # Các phần logic còn lại không đổi
-    elif choice == 'Mục tiêu của mô hình':
+
+    with tab_goal:
         st.header("🎯 Mục tiêu của Mô hình")
         st.info("Ứng dụng này cần dữ liệu huấn luyện để bắt đầu hoạt động.")
-    elif choice == 'Xây dựng mô hình':
+    
+    with tab_build:
           st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
           st.error("❌ **Không thể xây dựng mô hình**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để bắt đầu.")
-        
+          
     st.stop()
 
 # Kiểm tra cột cần thiết
@@ -434,14 +454,9 @@ metrics_out = {
     "auc_out": roc_auc_score(y_test, y_proba_out),
 }
 
-# Sử dụng Sidebar để chọn tính năng
-menu = ["Mục tiêu của mô hình", "Xây dựng mô hình", "Sử dụng mô hình để dự báo"]
-# ***** ĐIỀU CHỈNH CHỦ YẾU: ĐẶT index=2 LÀM MẶC ĐỊNH *****
-choice = st.sidebar.selectbox('🚀 Danh mục Tính năng', menu, index=2)
+# --- CÁC PHẦN UI DỰA TRÊN TABS ---
 
-# --- CÁC PHẦN UI ĐƯỢC TỔ CHỨC LẠI ĐẸP HƠN (GIỮ NGUYÊN) ---
-
-if choice == 'Mục tiêu của mô hình':    
+with tab_goal:
     st.header("🎯 Mục tiêu của Mô hình")
     st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số $\text{X1}–\text{X14}$ (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
     
@@ -450,11 +465,12 @@ if choice == 'Mục tiêu của mô hình':
         #  # Thay thế 3 hình ảnh
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
-                st.image(img)
+                # Dùng placeholder image nếu không tìm thấy file
+                st.image(f"https://placehold.co/800x400/004c99/ffffff?text={img.replace('.jpg', '').replace('.png', '').upper()}_PLACEHOLDER")
             except Exception:
                 st.warning(f"Không tìm thấy {img}")
 
-elif choice == 'Xây dựng mô hình':
+with tab_build:
     st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
     st.info("Mô hình Hồi quy Logistic đã được huấn luyện trên **20% dữ liệu Test (chưa thấy)**.")
     
@@ -463,6 +479,7 @@ elif choice == 'Xây dựng mô hình':
     col_acc, col_auc, col_f1 = st.columns(3)
     
     col_acc.metric(label="Độ chính xác (Accuracy)", value=f"{metrics_out['accuracy_out']:.2%}")
+    # Đảm bảo logic delta vẫn đúng
     col_auc.metric(label="Diện tích dưới đường cong (AUC)", value=f"{metrics_out['auc_out']:.3f}", delta=f"{metrics_in['auc_in'] - metrics_out['auc_out']:.3f}", delta_color="inverse")
     col_f1.metric(label="Điểm F1-Score", value=f"{metrics_out['f1_out']:.3f}")
     
@@ -478,7 +495,7 @@ elif choice == 'Xây dựng mô hình':
         st.dataframe(pd.concat([df.head(3), df.tail(3)]))
 
     st.markdown("##### Biểu đồ Phân tán (Scatter Plot) với Đường Hồi quy Logisitc")
-    col = st.selectbox('🔍 Chọn biến X muốn vẽ', options=MODEL_COLS, index=0)
+    col = st.selectbox('🔍 Chọn biến X muốn vẽ', options=MODEL_COLS, index=0, key="select_build_col")
 
     # Biểu đồ Scatter Plot và Đường Hồi quy Logisitc (GIỮ NGUYÊN LOGIC)
     if col in df.columns:
@@ -537,8 +554,8 @@ elif choice == 'Xây dựng mô hình':
 
         st.dataframe(dt.style.format("{:.4f}").apply(highlight_max, axis=1), use_container_width=True)
 
-elif choice == 'Sử dụng mô hình để dự báo':
-    # Trang này được hiển thị mặc định khi index=2
+with tab_predict:
+    # Trang này được hiển thị mặc định
     st.header("⚡ Dự báo PD & Phân tích AI cho Hồ sơ mới")
     
     # Sử dụng st.container và st.expander để tổ chức khu vực upload
@@ -546,7 +563,7 @@ elif choice == 'Sử dụng mô hình để dự báo':
     with input_container:
         st.markdown("##### 📥 Tải lên Hồ sơ Doanh nghiệp (Excel)")
         st.caption("File phải có đủ **3 sheet**: **CDKT** (Bảng Cân đối Kế toán) ; **BCTN** (Báo cáo Kết quả Kinh doanh) ; **LCTT** (Báo cáo Lưu chuyển Tiền tệ).")
-        up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx**", type=["xlsx"], key="ho_so_dn", label_visibility="collapsed")
+        up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx**", type=["xlsx"], key="ho_so_dn_main", label_visibility="collapsed")
     
     if up_xlsx is not None:
         # Tính X1..X14 từ 3 sheet (GIỮ NGUYÊN)
@@ -576,6 +593,7 @@ elif choice == 'Sử dụng mô hình để dự báo':
         # Kiểm tra mô hình có sẵn sàng dự báo không (đã train và cột khớp)
         if set(X.columns) == set(ratios_predict.columns):
             try:
+                # Đảm bảo thứ tự cột cho predict đúng như thứ tự cột huấn luyện
                 probs = model.predict_proba(ratios_predict[X.columns])[:, 1]
                 preds = (probs >= 0.5).astype(int)
                 # Thêm PD vào payload AI
@@ -615,7 +633,7 @@ elif choice == 'Sử dụng mô hình để dự báo':
              # Đảm bảo hiển thị Tên biến | Giá trị
              st.markdown("##### **Chỉ số Tài chính (1/2)**") 
              st.dataframe(
-                 ratios_part1.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}), # <<< ĐÃ BỎ .T
+                 ratios_part1.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
                  use_container_width=True
              )
 
@@ -623,7 +641,7 @@ elif choice == 'Sử dụng mô hình để dự báo':
             # Đảm bảo hiển thị Tên biến | Giá trị
             st.markdown("##### **Chỉ số Tài chính (2/2)**")
             st.dataframe(
-                ratios_part2.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}), # <<< ĐÃ BỎ .T
+                ratios_part2.style.apply(color_ratios, axis=1).format("{:.4f}").set_properties(**{'font-size': '14px'}),
                 use_container_width=True
             )
         
@@ -650,7 +668,8 @@ elif choice == 'Sử dụng mô hình để dự báo':
             st.markdown("Sử dụng Gemini AI để phân tích toàn diện các chỉ số và đưa ra khuyến nghị chuyên nghiệp.")
             
             if st.button("✨ Yêu cầu AI Phân tích & Đề xuất", use_container_width=True, type="primary"):
-                api_key = st.secrets.get("GEMINI_API_KEY")
+                # Kiểm tra API Key: ưu tiên lấy từ secrets
+                api_key = st.secrets.get("GEMINI_API_KEY") 
                 
                 if api_key:
                     # Thêm thanh tiến trình đẹp mắt
@@ -680,4 +699,5 @@ elif choice == 'Sử dụng mô hình để dự báo':
 
     else:
         st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
+
 
