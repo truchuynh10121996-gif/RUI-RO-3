@@ -1,5 +1,3 @@
-# app_upgraded_i18n_pro_design.py — Streamlit PD + Phân tích Gemini (Giao diện Tên Tiếng Việt - Nâng cấp Thẩm mỹ)
-
 # =========================
 # THƯ VIỆN BẮT BUỘC VÀ BỔ SUNG
 # =========================
@@ -38,6 +36,7 @@ try:
 except Exception:
     OpenAI = None
     _OPENAI_OK = False
+
 
 MODEL_NAME = "gemini-2.5-flash"
 
@@ -165,6 +164,7 @@ button[kind="primary"]:active {
 </style>
 """, unsafe_allow_html=True)
 
+
 # =========================
 # HÀM GỌI GEMINI API (GIỮ NGUYÊN LOGIC)
 # =========================
@@ -202,6 +202,7 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
         return f"Lỗi gọi API Gemini: {e}"
     except Exception as e:
         return f"Lỗi không xác định: {e}"
+
 
 # =========================
 # TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) - SỬ DỤNG TÊN TIẾNG VIỆT (GIỮ NGUYÊN)
@@ -284,35 +285,35 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     cf = pd.read_excel(xlsx_file, sheet_name="LCTT", engine="openpyxl")
 
     # ---- Tính toán các biến số tài chính (GIỮ NGUYÊN CÁCH TÍNH)
-    DTT_prev, DTT_cur      = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
+    DTT_prev, DTT_cur       = _get_row_vals(is_, ALIAS_IS["doanh_thu_thuan"])
     GVHB_prev, GVHB_cur = _get_row_vals(is_, ALIAS_IS["gia_von"])
-    LNG_prev, LNG_cur      = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
+    LNG_prev, LNG_cur       = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
-    LV_prev, LV_cur        = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-    TTS_prev, TTS_cur        = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
-    VCSH_prev, VCSH_cur      = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
-    NPT_prev, NPT_cur        = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
-    TSNH_prev, TSNH_cur      = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
-    NNH_prev, NNH_cur        = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
-    HTK_prev, HTK_cur        = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
-    Tien_prev, Tien_cur      = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
-    KPT_prev, KPT_cur        = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
-    NDH_prev, NDH_cur        = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
+    LV_prev, LV_cur         = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
+    TTS_prev, TTS_cur         = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
+    VCSH_prev, VCSH_cur       = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
+    NPT_prev, NPT_cur         = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
+    TSNH_prev, TSNH_cur       = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
+    NNH_prev, NNH_cur         = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
+    HTK_prev, HTK_cur         = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
+    Tien_prev, Tien_cur       = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
+    KPT_prev, KPT_cur         = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
+    NDH_prev, NDH_cur         = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
-    if pd.notna(LV_cur):     LV_cur     = abs(LV_cur)
-    if pd.notna(KH_cur):     KH_cur     = abs(KH_cur)
+    if pd.notna(LV_cur):       LV_cur      = abs(LV_cur)
+    if pd.notna(KH_cur):       KH_cur      = abs(KH_cur)
 
     def avg(a, b):
         if pd.isna(a) and pd.isna(b): return np.nan
         if pd.isna(a): return b
         if pd.isna(b): return a
         return (a + b) / 2.0
-    TTS_avg    = avg(TTS_cur,   TTS_prev)
+    TTS_avg    = avg(TTS_cur,    TTS_prev)
     VCSH_avg = avg(VCSH_cur, VCSH_prev)
-    HTK_avg    = avg(HTK_cur,   HTK_prev)
-    KPT_avg    = avg(KPT_cur,   KPT_prev)
+    HTK_avg    = avg(HTK_cur,    HTK_prev)
+    KPT_avg    = avg(KPT_cur,    KPT_prev)
 
     EBIT_cur = (LNTT_cur + LV_cur) if (pd.notna(LNTT_cur) and pd.notna(LV_cur)) else np.nan
     NDH_cur = 0.0 if pd.isna(NDH_cur) else NDH_cur
@@ -359,6 +360,17 @@ st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâ
 st.markdown('</div>', unsafe_allow_html=True)
 # ------------------------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------------------------
+# THAY ĐỔI 2: DI CHUYỂN TABS VỀ VỊ TRÍ MỚI (Ngay dưới banner)
+# ------------------------------------------------------------------------------------------------
+# Định nghĩa các Tabs
+tab_predict, tab_build, tab_goal = st.tabs([
+    "🚀 Sử dụng mô hình để dự báo", 
+    "🛠️ Xây dựng mô hình", 
+    "🎯 Mục tiêu của mô hình"
+])
+# ------------------------------------------------------------------------------------------------
+
 # Hiển thị trạng thái thư viện AI (Sử dụng cột để bố trí đẹp hơn)
 col_ai_status, col_date = st.columns([3, 1])
 with col_ai_status:
@@ -383,17 +395,6 @@ if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
 
-# ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 2: CHUYỂN SANG DÙNG st.tabs NGANG
-# ------------------------------------------------------------------------------------------------
-
-# Định nghĩa các Tabs
-tab_predict, tab_build, tab_goal = st.tabs([
-    "🚀 Sử dụng mô hình để dự báo", 
-    "🛠️ Xây dựng mô hình", 
-    "🎯 Mục tiêu của mô hình"
-])
-
 # --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
     st.sidebar.info("💡 Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14) để xây dựng mô hình.")
@@ -416,12 +417,14 @@ if df is None:
           
     st.stop()
 
+
 # Kiểm tra cột cần thiết
 required_cols = ['default'] + MODEL_COLS
 missing = [c for c in required_cols if c not in df.columns]
 if missing:
     st.error(f"❌ Thiếu cột: **{missing}**. Vui lòng kiểm tra lại file CSV huấn luyện.")
     st.stop()
+
 
 # Train model (GIỮ NGUYÊN)
 X = df[MODEL_COLS] # Chỉ lấy các cột X_1..X_14
@@ -462,7 +465,7 @@ with tab_goal:
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        #  # Thay thế 3 hình ảnh
+        # # Thay thế 3 hình ảnh
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 # Dùng placeholder image nếu không tìm thấy file
@@ -699,5 +702,3 @@ with tab_predict:
 
     else:
         st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
-
-
