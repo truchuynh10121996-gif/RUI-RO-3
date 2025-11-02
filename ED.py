@@ -492,13 +492,21 @@ with tab_goal:
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        # # Thay thế 3 hình ảnh
-        for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
-            try:
-                # Dùng placeholder image nếu không tìm thấy file
-                st.image(f"https://placehold.co/800x400/d9534f/ffffff?text={img.replace('.jpg', '').replace('.png', '').upper()}_PLACEHOLDER")
-            except Exception:
-                st.warning(f"Không tìm thấy {img}")
+        
+        # ------------------------------------------------------------------
+        # FIX LỖI HIỂN THỊ ẢNH (Sử dụng URL Placeholder cố định)
+        # ------------------------------------------------------------------
+        image_files = ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]
+        
+        for img in image_files:
+            placeholder_text = img.replace('.jpg', '').replace('.png', '').upper()
+            # FIX: Loại bỏ try/except không cần thiết và hiển thị ảnh URL Placeholder trực tiếp
+            st.image(
+                f"https://placehold.co/800x400/d9534f/ffffff?text={placeholder_text}_PLACEHOLDER",
+                caption=f"Ảnh minh họa mô hình: {placeholder_text}",
+                use_column_width=True
+            )
+        # ------------------------------------------------------------------
 
 with tab_build:
     st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
