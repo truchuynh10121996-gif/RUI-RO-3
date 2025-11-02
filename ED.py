@@ -50,7 +50,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh cho MÀU SẮC, PHÔNG CHỮ, HIỆU ỨNG ĐỘNG
+# Thêm CSS tùy chỉnh cho MÀU SẮC, PHÔNG CHỮ, HIỆU ỨNG ĐỘNG - ĐÃ ĐỔI SANG TÔNG ĐỎ NHẠT
 st.markdown("""
 <style>
 /* Ẩn menu và footer mặc định */
@@ -63,22 +63,23 @@ body {
 }
 
 /* ------------------------------------------------------------------------------------------------
-| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (Đảm bảo Canh giữa, Màu sắc và Hiệu ứng nhẹ)
+| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (TÔNG ĐỎ NHẠT/HỒNG)
 ------------------------------------------------------------------------------------------------ */
 .banner-title-container {
-    background: linear-gradient(90deg, #e0f0ff, #f7f9fc, #e0f0ff); /* Màu chuyển sắc nhẹ nhàng */
-    padding: 20px 30px; /* Tăng padding để làm dải banner dày hơn */
-    border-radius: 10px; /* Bo góc nhẹ */
-    box-shadow: 0 4px 12px rgba(0, 76, 153, 0.1); /* Shadow nhẹ nhàng, chuyên nghiệp */
-    margin-bottom: 20px; /* Khoảng cách với nội dung bên dưới */
-    text-align: center; /* **CANH GIỮA TIÊU ĐỀ** */
+    /* Màu chuyển sắc nhẹ nhàng - Tông Hồng Nhạt */
+    background: linear-gradient(90deg, #ffe0e0, #fff5f5, #ffe0e0); 
+    padding: 20px 30px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 12px rgba(255, 136, 136, 0.3); /* Shadow nổi bật */
+    margin-bottom: 20px; 
+    text-align: center; 
 }
 /* Đảm bảo h1 trong banner sử dụng màu sắc đồng bộ và animation */
 .banner-title-container h1 {
-    color: #004c99 !important; /* Xanh Navy Đậm cho tiêu đề */
+    color: #d9534f !important; /* Đỏ Mềm */
     font-weight: 900 !important;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-    animation: wave 2s infinite alternate; /* **THÊM CHUYỂN ĐỘNG NHẸ** */
+    animation: wave 2s infinite alternate; /* THÊM CHUYỂN ĐỘNG NHẸ */
 }
 
 @keyframes wave {
@@ -87,7 +88,7 @@ body {
 }
 
 .banner-title-container h3 {
-    color: #1a75ff !important; /* Xanh tươi hơn cho tiêu đề phụ */
+    color: #e38282 !important; /* Hồng tươi hơn */
     font-weight: 600 !important;
     margin-top: -10px;
     border-bottom: none;
@@ -96,60 +97,83 @@ body {
 
 /* Tiêu đề cấp 2 (Sub-header) */
 h3 {
-    color: #1a75ff; /* Xanh tươi hơn */
-    border-bottom: 2px solid #e0f0ff;
+    color: #d9534f; /* Đỏ Mềm */
+    border-bottom: 2px solid #ffeded;
     padding-bottom: 5px;
 }
 
 /* Thẻ chính metrics - Thiết kế box hiện đại */
 div[data-testid="metric-container"] {
-    border: 1px solid #1a75ff; /* Border nổi bật */
+    border: 1px solid #ff8888; /* Border nổi bật - Hồng */
     border-radius: 12px;
     padding: 10px;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
-    background-color: #f7f9fc;
+    box-shadow: 4px 4px 10px rgba(217, 83, 79, 0.15);
+    background-color: #fff7f7; /* Nền trắng hồng nhạt */
+}
+/* Màu chữ metric */
+div[data-testid="stMetricValue"] {
+    color: #d9534f; /* Đỏ Mềm */
+    font-size: 1.8rem;
+}
+/* Màu chữ delta (rủi ro cao - đỏ, rủi ro thấp - xanh) */
+div[data-testid="stMetricDelta"] {
+    font-weight: bold;
+}
+/* Đảm bảo màu đỏ cho rủi ro cao (inverse) */
+div[data-testid="stMetricDelta"][data-delta-color="inverse"] {
+    color: #d9534f !important; /* Đỏ mềm */
+}
+/* Đảm bảo màu xanh cho rủi ro thấp (normal) - Giữ xanh nhưng tông mềm */
+div[data-testid="stMetricDelta"][data-delta-color="normal"] {
+    color: #4CAF50 !important; /* Xanh Lá An toàn */
 }
 
 /* ------------------------------------------------------------------------------------------------
-| THAY ĐỔI 2: Styling cho Tabs Ngang (Thêm màu và hiệu ứng)
+| THAY ĐỔI 2: Styling cho Tabs Ngang (Tông Đỏ/Hồng)
 ------------------------------------------------------------------------------------------------ */
 /* Style cho từng nút Tab (chưa được chọn) */
 button[data-testid="stTab"] {
-    background-color: #f7f9fc; /* Nền nhẹ */
-    border: 1px solid #d3e0f0;
+    background-color: #fff7f7; /* Nền nhẹ */
+    border: 1px solid #ffcccc;
     border-radius: 8px 8px 0 0 !important; /* Bo góc trên */
     transition: all 0.3s ease;
     font-weight: 600;
-    color: #4b5563; /* Màu chữ xám */
+    color: #8c2a2a; /* Màu chữ nâu đỏ */
     padding: 10px 20px;
     margin-right: 5px;
 }
 
 /* Hiệu ứng Hover */
 button[data-testid="stTab"]:hover {
-    background-color: #e0f0ff; /* Xanh nhẹ khi hover */
-    color: #004c99; /* Xanh đậm hơn */
-    border-color: #1a75ff;
+    background-color: #ffeded; /* Hồng nhạt hơn khi hover */
+    color: #d9534f; /* Đỏ đậm hơn */
+    border-color: #ff8888;
     transform: translateY(-2px); /* Hiệu ứng nhấc lên nhẹ */
 }
 
 /* Style cho Tab đang được chọn (Active) */
 button[data-testid="stTab"][aria-selected="true"] {
-    background-color: #1a75ff !important; /* Màu xanh nổi bật */
+    background-color: #ff8888 !important; /* Màu Hồng nổi bật */
     color: white !important; /* Chữ trắng */
-    border-color: #1a75ff !important;
+    border-color: #d9534f !important;
     border-bottom: 2px solid white !important;
-    box-shadow: 0 4px 8px rgba(26, 117, 255, 0.3); /* Thêm shadow nhẹ */
-    transform: translateY(0px); /* Đảm bảo không bị nhấc lên */
+    box-shadow: 0 4px 8px rgba(217, 83, 79, 0.4); /* Thêm shadow nhẹ */
+    transform: translateY(0px);
+}
+
+/* Kéo thanh Tab lên cao, nằm dưới banner */
+[data-testid="stVerticalBlock"]:has(.stTabs) {
+    margin-top: -60px; 
+    z-index: 1000; 
 }
 /* ------------------------------------------------------------------------------------------------ */
 
 /* Sidebar - Làm nổi bật phần upload file */
 [data-testid="stSidebar"] {
-    background-color: #e0f0ff; /* Xanh nhạt cho sidebar */
+    background-color: #ffeded; /* Hồng nhạt cho sidebar */
 }
 div[data-testid="stFileUploader"] {
-    border: 2px dashed #004c99;
+    border: 2px dashed #d9534f; /* Đỏ mềm */
     border-radius: 10px;
     padding: 15px;
     margin-top: 10px;
@@ -157,18 +181,17 @@ div[data-testid="stFileUploader"] {
 
 /* Nút bấm Phân tích AI - Hiệu ứng nhấn */
 button[kind="primary"] {
-    background-color: #1a75ff;
-    border-color: #1a75ff;
+    background-color: #ff8888;
+    border-color: #ff8888;
     transition: background-color 0.3s ease, transform 0.1s ease;
 }
 button[kind="primary"]:hover {
-    background-color: #004c99;
-    border-color: #004c99;
+    background-color: #d9534f;
+    border-color: #d9534f;
 }
 button[kind="primary"]:active {
     transform: scale(0.98);
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -298,15 +321,15 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     LNG_prev, LNG_cur         = _get_row_vals(is_, ALIAS_IS["loi_nhuan_gop"])
     LNTT_prev, LNTT_cur = _get_row_vals(is_, ALIAS_IS["loi_nhuan_truoc_thue"])
     LV_prev, LV_cur           = _get_row_vals(is_, ALIAS_IS["chi_phi_lai_vay"])
-    TTS_prev, TTS_cur           = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
-    VCSH_prev, VCSH_cur         = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
-    NPT_prev, NPT_cur           = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
-    TSNH_prev, TSNH_cur         = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
-    NNH_prev, NNH_cur           = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
-    HTK_prev, HTK_cur           = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
-    Tien_prev, Tien_cur         = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
-    KPT_prev, KPT_cur           = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
-    NDH_prev, NDH_cur           = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
+    TTS_prev, TTS_cur         = _get_row_vals(bs, ALIAS_BS["tong_tai_san"])
+    VCSH_prev, VCSH_cur       = _get_row_vals(bs, ALIAS_BS["von_chu_so_huu"])
+    NPT_prev, NPT_cur         = _get_row_vals(bs, ALIAS_BS["no_phai_tra"])
+    TSNH_prev, TSNH_cur       = _get_row_vals(bs, ALIAS_BS["tai_san_ngan_han"])
+    NNH_prev, NNH_cur         = _get_row_vals(bs, ALIAS_BS["no_ngan_han"])
+    HTK_prev, HTK_cur         = _get_row_vals(bs, ALIAS_BS["hang_ton_kho"])
+    Tien_prev, Tien_cur       = _get_row_vals(bs, ALIAS_BS["tien_tdt"])
+    KPT_prev, KPT_cur         = _get_row_vals(bs, ALIAS_BS["phai_thu_kh"])
+    NDH_prev, NDH_cur         = _get_row_vals(bs, ALIAS_BS["no_dai_han_den_han"])
     KH_prev, KH_cur = _get_row_vals(cf, ALIAS_CF["khau_hao"])
 
     if pd.notna(GVHB_cur): GVHB_cur = abs(GVHB_cur)
@@ -360,18 +383,25 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 np.random.seed(0)
 
 # ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 3: Áp dụng dải banner CSS đã tạo (banner rộng hơn, canh giữa và có animation)
+# THAY ĐỔI MỚI: Tách Tab ra ngoài và thay đổi CSS để kéo Tab lên trên
 # ------------------------------------------------------------------------------------------------
+
+# 1. Hiển thị dải Banner/Tiêu đề
 st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
 st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
 st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâng cao")
 st.markdown('</div>', unsafe_allow_html=True)
-# ------------------------------------------------------------------------------------------------
+
+# 2. Định nghĩa các Tabs (sẽ được kéo lên)
+tab_predict, tab_build, tab_goal = st.tabs([
+    "🚀 Sử dụng mô hình để dự báo", 
+    "🛠️ Xây dựng mô hình", 
+    "🎯 Mục tiêu của mô hình"
+])
 
 # Load dữ liệu huấn luyện (CSV có default, X_1..X_14) - Giữ nguyên logic load data
 try:
     df = pd.read_csv('DATASET.csv', encoding='latin-1')
-    # Tên cột cho việc huấn luyện (phải giữ nguyên X_1..X_14)
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
 except Exception:
     df = None
@@ -382,16 +412,6 @@ if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, encoding='latin-1')
     MODEL_COLS = [f"X_{i}" for i in range(1, 15)]
     
-# Định nghĩa các Tabs
-# ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 4: Vị trí Tabs được giữ nguyên, CSS mới sẽ đảm bảo Tabs có màu
-# ------------------------------------------------------------------------------------------------
-tab_predict, tab_build, tab_goal = st.tabs([
-    "🚀 Sử dụng mô hình để dự báo", 
-    "🛠️ Xây dựng mô hình", 
-    "🎯 Mục tiêu của mô hình"
-])
-
 # --- Logic xử lý khi chưa có data huấn luyện ---
 if df is None:
     st.sidebar.info("💡 Hãy tải file CSV huấn luyện (có cột 'default' và X_1...X_14) để xây dựng mô hình.")
@@ -419,7 +439,7 @@ if df is None:
 col_ai_status, col_date = st.columns([3, 1])
 with col_ai_status:
     ai_status = ("✅ sẵn sàng (cần 'GEMINI_API_KEY' trong Secrets)" if _GEMINI_OK else "⚠️ Thiếu thư viện google-genai.")
-    st.caption(f"🔎 Trạng thái Gemini AI: **<span style='color: #004c99; font-weight: bold;'>{ai_status}</span>**", unsafe_allow_html=True)
+    st.caption(f"🔎 Trạng thái Gemini AI: **<span style='color: #d9534f; font-weight: bold;'>{ai_status}</span>**", unsafe_allow_html=True)
 with col_date:
     st.caption(f"📅 Cập nhật: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
 
@@ -468,7 +488,7 @@ metrics_out = {
 
 with tab_goal:
     st.header("🎯 Mục tiêu của Mô hình")
-    st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số $\text{X1}–\text{X14}$ (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
+    st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số $\\text{X1}–\\text{X14}$ (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
         st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
@@ -476,7 +496,7 @@ with tab_goal:
         for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
             try:
                 # Dùng placeholder image nếu không tìm thấy file
-                st.image(f"https://placehold.co/800x400/004c99/ffffff?text={img.replace('.jpg', '').replace('.png', '').upper()}_PLACEHOLDER")
+                st.image(f"https://placehold.co/800x400/d9534f/ffffff?text={img.replace('.jpg', '').replace('.png', '').upper()}_PLACEHOLDER")
             except Exception:
                 st.warning(f"Không tìm thấy {img}")
 
@@ -512,7 +532,8 @@ with tab_build:
         try:
             # Dùng Streamlit.pyplot để đảm bảo tích hợp tốt hơn
             fig, ax = plt.subplots(figsize=(10, 6))
-            sns.scatterplot(data=df, x=col, y='default', alpha=0.6, ax=ax, hue='default', palette=['#1a75ff', '#ff4b4b']) # Dùng màu sắc theme
+            # Màu mới cho scatter plot
+            sns.scatterplot(data=df, x=col, y='default', alpha=0.6, ax=ax, hue='default', palette=['#ff8888', '#d9534f']) 
             
             # Vẽ đường logistic regression theo 1 biến
             x_range = np.linspace(df[col].min(), df[col].max(), 100).reshape(-1, 1)
@@ -522,7 +543,7 @@ with tab_build:
             lr_temp.fit(X_temp, y_temp)
             x_test = pd.DataFrame({col: x_range[:, 0]})
             y_curve = lr_temp.predict_proba(x_test)[:, 1]
-            ax.plot(x_range, y_curve, color='#004c99', linewidth=3, label='Đường LogReg') # Màu xanh đậm
+            ax.plot(x_range, y_curve, color='#d9534f', linewidth=3, label='Đường LogReg') # Màu đỏ mềm
             
             ax.set_title(f'Quan hệ giữa {col} và Xác suất Vỡ nợ', fontsize=14)
             ax.set_ylabel('Xác suất default (1: Default)', fontsize=12)
@@ -543,10 +564,10 @@ with tab_build:
     with col_cm:
         st.markdown("##### Ma trận Nhầm lẫn (Test Set)")
         cm = confusion_matrix(y_test, y_pred_out)
-        # Sử dụng cmap màu xanh đậm hơn để đồng bộ với theme
+        # Sử dụng cmap màu đỏ/cam
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Default (0)', 'Default (1)'])
         fig2, ax = plt.subplots(figsize=(6, 6))
-        disp.plot(ax=ax, cmap=plt.cm.get_cmap('Blues', 8)) 
+        disp.plot(ax=ax, cmap=plt.cm.OrRd) # Sử dụng OrRd (Orange Red)
         st.pyplot(fig2)
         plt.close(fig2)
         
@@ -560,7 +581,7 @@ with tab_build:
         # Thêm styling để làm nổi bật kết quả tốt nhất
         def highlight_max(s):
             is_max = s == s.max()
-            return ['background-color: #e0f0ff' if v else '' for v in is_max]
+            return ['background-color: #ffeded' if v else '' for v in is_max]
 
         st.dataframe(dt.style.format("{:.4f}").apply(highlight_max, axis=1), use_container_width=True)
 
@@ -624,7 +645,7 @@ with tab_predict:
         ratios_part1 = ratios_display.iloc[:mid_point]
         ratios_part2 = ratios_display.iloc[mid_point:]
         
-        # Hàm styling (GIỮ NGUYÊN)
+        # Hàm styling (Cập nhật màu sắc)
         def color_ratios(val):
             """Ánh xạ màu dựa trên tên chỉ số và giá trị (tạm thời để hiển thị đẹp)"""
             # Chỉ số Thanh khoản (X7, X8) - Green/Yellow
@@ -633,7 +654,7 @@ with tab_predict:
             # Chỉ số Nợ (X5, X6) - Red/Green
             if "Tỷ lệ Nợ/" in val.name and val.values[0] > 1.0: return ['background-color: #ffcccc' for _ in val] # Trên 1: Rủi ro cao
             if "Tỷ lệ Nợ/" in val.name and val.values[0] < 0.5: return ['background-color: #ccffcc' for _ in val] # Dưới 0.5: Tốt
-            # Chỉ số Sinh lời (X1, X2, X3, X4) - Green/Yellow
+            # Chỉ số Sinh lời (X1, X2, X3, X4) - Red/Green
             if "Lợi nhuận" in val.name or "ROA" in val.name or "ROE" in val.name:
                 if val.values[0] <= 0: return ['background-color: #ffcccc' for _ in val]
                 if val.values[0] > 0.1: return ['background-color: #ccffcc' for _ in val]
@@ -673,6 +694,75 @@ with tab_predict:
         # Khu vực Phân tích AI
         st.markdown("### 2. 🧠 Phân tích AI & Khuyến nghị Tín dụng")
         
+        # ------------------------------------------------------------------------------------------------
+        # BỔ SUNG: Biểu đồ trực quan hóa 14 chỉ số đã tính (Bar Chart)
+        # ------------------------------------------------------------------------------------------------
+        st.markdown("#### 📈 Trực quan hóa các Chỉ số Tài chính")
+        # Chuẩn bị data cho biểu đồ
+        chart_data = ratios_display.copy()
+        chart_data.columns = ['Giá trị']
+        chart_data['Chỉ số'] = chart_data.index.str.replace(r' \(X\d+\)', '', regex=True)
+        chart_data.reset_index(drop=True, inplace=True)
+
+        # Phân loại màu sắc theo nhóm chỉ số
+        def get_group(index_name):
+            if any(k in index_name for k in ["Lợi nhuận", "ROA", "ROE"]): return "A. Sinh lời"
+            if any(k in index_name for k in ["Nợ/", "Nợ/"]): return "B. Cơ cấu vốn"
+            if any(k in index_name for k in ["Thanh toán", "Tiền/VCSH"]): return "C. Thanh khoản"
+            return "D. Hiệu quả hoạt động"
+
+        chart_data['Nhóm'] = chart_data['Chỉ số'].apply(get_group)
+        # Màu mới: Đỏ mềm cho giá trị âm, Xanh an toàn cho giá trị dương
+        chart_data['Màu'] = np.where(chart_data['Giá trị'] >= 0, '#4CAF50', '#d9534f') 
+
+        # Matplotlib/Seaborn Bar Plot
+        try:
+            fig, ax = plt.subplots(figsize=(10, 7))
+            
+            # Sắp xếp lại dữ liệu theo Nhóm để biểu đồ dễ đọc hơn
+            chart_data.sort_values(by='Nhóm', ascending=False, inplace=True) 
+
+            # Vẽ biểu đồ thanh ngang
+            sns.barplot(
+                x='Giá trị', 
+                y='Chỉ số', 
+                data=chart_data, 
+                palette=chart_data['Màu'].tolist(), # Dùng màu tùy chỉnh (Xanh/Đỏ)
+                ax=ax,
+                # Thêm màu theo Nhóm để phân biệt
+                hue='Nhóm',
+                hue_order=sorted(chart_data['Nhóm'].unique()),
+                dodge=False
+            )
+            
+            ax.axvline(0, color='black', linestyle='-', linewidth=1.5, alpha=0.7) # Đường 0 rõ ràng
+            ax.set_title('Trực quan hóa 14 Chỉ số Tài chính Quan trọng', fontsize=16, color='#d9534f', fontweight='bold')
+            ax.set_xlabel('Giá trị Chỉ số', fontsize=12)
+            ax.set_ylabel('Tên Chỉ số', fontsize=12)
+            
+            # Tạo legend mới cho Nhóm (Cập nhật màu legend)
+            from matplotlib.patches import Patch
+            group_map = {
+                'A. Sinh lời': '#4CAF50', 
+                'B. Cơ cấu vốn': '#d9534f', 
+                'C. Thanh khoản': '#FFC107', 
+                'D. Hiệu quả hoạt động': '#90CAF9'
+            }
+            legend_elements = [Patch(facecolor=group_map.get(g, '#999999'), label=g) 
+                               for g in sorted(chart_data['Nhóm'].unique())]
+            
+            ax.legend(handles=legend_elements, title='Nhóm Chỉ số', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+            plt.tight_layout()
+            st.pyplot(fig)
+            plt.close(fig)
+        except Exception as e:
+            st.warning(f"Không thể vẽ biểu đồ chỉ số: {e}")
+        
+        st.divider()
+        # ------------------------------------------------------------------------------------------------
+
+
         ai_container = st.container(border=True)
         with ai_container:
             st.markdown("Sử dụng Gemini AI để phân tích toàn diện các chỉ số và đưa ra khuyến nghị chuyên nghiệp.")
