@@ -63,7 +63,7 @@ body {
 }
 
 /* ------------------------------------------------------------------------------------------------
-| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (TÔNG ĐỎ NHẠT/HỒNG)
+| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (TÔNG ĐỎ NHẠT/HỒNG - CANH GIỮA)
 ------------------------------------------------------------------------------------------------ */
 .banner-title-container {
     /* Màu chuyển sắc nhẹ nhàng - Tông Hồng Nhạt */
@@ -72,7 +72,7 @@ body {
     border-radius: 10px; 
     box-shadow: 0 4px 12px rgba(255, 136, 136, 0.3); /* Shadow nổi bật */
     margin-bottom: 20px; 
-    text-align: center; 
+    text-align: center; /* **CANH GIỮA TIÊU ĐỀ** */
 }
 /* Đảm bảo h1 trong banner sử dụng màu sắc đồng bộ và animation */
 .banner-title-container h1 {
